@@ -172,3 +172,72 @@ h1 {
     color: #2563eb;
 }
 
+
+.graduation-summary {
+    padding: 16px;
+    margin-bottom: 18px;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.graduation-summary h3 {
+    margin: 0 0 10px;
+}
+
+.graduation-summary .summary-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.graduation-progress {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.graduation-progress-bar {
+    height: 100%;
+    background: #16a34a;
+    border-radius: 10px;
+}
+
+.graduation-item {
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.graduation-item h3 {
+    font-size: 16px;
+    margin: 0 0 8px;
+}
+
+.graduation-item p {
+    margin: 0;
+    color: #334155;
+}
+
+.graduation-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.graduation-status.complete {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.graduation-status.incomplete {
+    background: #fef3c7;
+    color: #92400e;
+}
+
