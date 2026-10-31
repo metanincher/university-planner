@@ -242,3 +242,63 @@ if (semesterSelect) {
 
 // 起動
 init();
+
+
+// 履修登録ボタン
+registerButton.addEventListener("click", async () => {
+
+    // 選択内容を取得
+    const academicYear = Number(yearSelect.value);
+    const subjectId = subjectSelect.value;
+    const semester = Number(semesterSelect.value);
+
+    // 入力チェック
+    if (!academicYear || !subjectId || !semester) {
+        alert("年度・科目・学期を選択してください。");
+        return;
+    }
+
+    try {
+
+        // Firestoreに保存するデータ
+        const enrollmentData = {
+            subjectId: subjectId,
+            academicYear: academicYear,
+            semester: semester,
+            examResult: "未受験"
+        };
+
+        // Firestoreに登録
+        const docRef = await addDoc(
+            collection(
+                db,
+                "users",
+                "testUser001",
+                "enrollments"
+            ),
+            enrollmentData
+        );
+
+        console.log("登録ID:", docRef.id);
+
+        alert("履修登録しました！");
+
+        // 科目と学期の選択を初期化
+        subjectSelect.value = "";
+
+        resetSelect(semesterSelect);
+
+        subjectInfo.replaceChildren();
+
+        checkRegisterButton();
+
+    } catch (error) {
+
+        console.error("履修登録エラー:", error);
+
+        alert("履修登録に失敗しました。\n" + error.message);
+
+    }
+
+});
+
