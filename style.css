@@ -43,3 +43,34 @@ h1 {
         padding: 18px;
     }
 }
+
+.search-form {
+    margin-top: 20px;
+}
+
+.search-form label {
+    display: block;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.search-form select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background: white;
+}
+
+.search-form select:disabled {
+    background: #eee;
+}
+
+#subjectInfo {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eff6ff;
+    border-radius: 8px;
+}
