@@ -22,16 +22,22 @@ const firebaseConfig = {
 
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
-
-// Firestore接続
 const db = getFirestore(app);
 
 
-// 科目一覧を取得
-async function loadSubjects() {
+// 科目データを保存する配列
+let subjects = [];
 
-    const status = document.getElementById("status");
-    const subjectList = document.getElementById("subjectList");
+
+// HTML要素
+const category1Select = document.getElementById("category1");
+const category2Select = document.getElementById("category2");
+const subjectSelect = document.getElementById("subject");
+const subjectInfo = document.getElementById("subjectInfo");
+
+
+// 初期処理
+async function init() {
 
     try {
 
@@ -39,47 +45,142 @@ async function loadSubjects() {
             collection(db, "subjects")
         );
 
-        subjectList.replaceChildren();
+        subjects = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
 
-        if (snapshot.empty) {
-            subjectList.textContent =
-                "まだ科目が登録されていません。";
-        }
+        // 大カテゴリを取得（重複を除く）
+        const categories = [
+            ...new Set(subjects.map(s => s.category1))
+        ];
 
-        snapshot.forEach((subjectDoc) => {
+        categories.forEach(category => {
 
-            const data = subjectDoc.data();
+            const option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
 
-            const div = document.createElement("div");
-            div.className = "subject";
-
-            const name = document.createElement("h3");
-            name.textContent = data.name;
-
-            const category = document.createElement("p");
-            category.textContent =
-                data.category1 + " / " + data.category2;
-
-            const credits = document.createElement("p");
-            credits.textContent = data.credits + "単位";
-
-            div.append(name, category, credits);
-
-            subjectList.appendChild(div);
+            category1Select.appendChild(option);
 
         });
 
-        status.textContent = "Firebase接続成功！";
+        document.getElementById("status").textContent =
+            "科目データを読み込みました！";
 
     } catch (error) {
 
-        status.textContent =
+        document.getElementById("status").textContent =
             "エラー: " + error.message;
-
-        console.error(error);
 
     }
 
 }
 
-loadSubjects();
+
+// 大カテゴリ変更時
+category1Select.addEventListener("change", () => {
+
+    const category1 = category1Select.value;
+
+    // 中カテゴリと科目を初期化
+    category2Select.innerHTML =
+        '<option value="">選択してください</option>';
+
+    subjectSelect.innerHTML =
+        '<option value="">選択してください</option>';
+
+    category2Select.disabled = true;
+    subjectSelect.disabled = true;
+
+    subjectInfo.replaceChildren();
+
+    if (!category1) return;
+
+    // 中カテゴリを絞り込む
+    const categories = [
+        ...new Set(
+            subjects
+                .filter(s => s.category1 === category1)
+                .map(s => s.category2)
+        )
+    ];
+
+    categories.forEach(category => {
+
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+
+        category2Select.appendChild(option);
+
+    });
+
+    category2Select.disabled = false;
+
+});
+
+
+// 中カテゴリ変更時
+category2Select.addEventListener("change", () => {
+
+    const category1 = category1Select.value;
+    const category2 = category2Select.value;
+
+    subjectSelect.innerHTML =
+        '<option value="">選択してください</option>';
+
+    subjectSelect.disabled = true;
+    subjectInfo.replaceChildren();
+
+    if (!category2) return;
+
+    // 科目を絞り込む
+    const filtered = subjects.filter(s =>
+        s.category1 === category1 &&
+        s.category2 === category2
+    );
+
+    filtered.forEach(subject => {
+
+        const option = document.createElement("option");
+        option.value = subject.id;
+        option.textContent = subject.name;
+
+        subjectSelect.appendChild(option);
+
+    });
+
+    subjectSelect.disabled = false;
+
+});
+
+
+// 科目変更時
+subjectSelect.addEventListener("change", () => {
+
+    const subjectId = subjectSelect.value;
+
+    subjectInfo.replaceChildren();
+
+    if (!subjectId) return;
+
+    const subject = subjects.find(s => s.id === subjectId);
+
+    const name = document.createElement("h3");
+    name.textContent = subject.name;
+
+    const credits = document.createElement("p");
+    credits.textContent = "単位数：" + subject.credits;
+
+    const terms = document.createElement("p");
+    terms.textContent =
+        "開講学期：" + subject.offeredTerm.join("・") + "学期";
+
+    subjectInfo.append(name, credits, terms);
+
+});
+
+
+// 起動
+init();
