@@ -11,12 +11,12 @@ import {
 
 // Firebase設定
 const firebaseConfig = {
-  apiKey: "AIzaSyAbOQ2XmN_7fEZtVo8IFT9FbwjqkhXViPg",
-  authDomain: "university-planner-9c4c6.firebaseapp.com",
-  projectId: "university-planner-9c4c6",
-  storageBucket: "university-planner-9c4c6.firebasestorage.app",
-  messagingSenderId: "124072663091",
-  appId: "1:124072663091:web:5efb6cd37e50ecf98aab46"
+    apiKey: "AIzaSyAbOQ2XmN_7fEZtVo8IFT9FbwjqkhXViPg",
+    authDomain: "university-planner-9c4c6.firebaseapp.com",
+    projectId: "university-planner-9c4c6",
+    storageBucket: "university-planner-9c4c6.firebasestorage.app",
+    messagingSenderId: "124072663091",
+    appId: "1:124072663091:web:5efb6cd37e50ecf98aab46"
 };
 
 
@@ -33,7 +33,18 @@ let subjects = [];
 const category1Select = document.getElementById("category1");
 const category2Select = document.getElementById("category2");
 const subjectSelect = document.getElementById("subject");
+const semesterSelect = document.getElementById("semester");
+const yearSelect = document.getElementById("academicYear");
 const subjectInfo = document.getElementById("subjectInfo");
+const registerButton = document.getElementById("registerButton");
+
+
+// プルダウン初期化用関数
+function resetSelect(select, disabled = true) {
+    select.innerHTML =
+        '<option value="">選択してください</option>';
+    select.disabled = disabled;
+}
 
 
 // 初期処理
@@ -49,9 +60,9 @@ async function init() {
             id: doc.id,
             ...doc.data()
         }));
-        
+
         console.log("取得した科目データ:", subjects);
-        
+
         // 大カテゴリを取得（重複を除く）
         const categories = [
             ...new Set(subjects.map(s => s.category1))
@@ -75,7 +86,23 @@ async function init() {
         document.getElementById("status").textContent =
             "エラー: " + error.message;
 
+        console.error(error);
+
     }
+
+}
+
+
+// 登録ボタンの有効・無効を判定
+function checkRegisterButton() {
+
+    if (!registerButton) return;
+
+    registerButton.disabled = !(
+        yearSelect.value &&
+        subjectSelect.value &&
+        semesterSelect.value
+    );
 
 }
 
@@ -85,17 +112,13 @@ category1Select.addEventListener("change", () => {
 
     const category1 = category1Select.value;
 
-    // 中カテゴリと科目を初期化
-    category2Select.innerHTML =
-        '<option value="">選択してください</option>';
-
-    subjectSelect.innerHTML =
-        '<option value="">選択してください</option>';
-
-    category2Select.disabled = true;
-    subjectSelect.disabled = true;
+    resetSelect(category2Select);
+    resetSelect(subjectSelect);
+    resetSelect(semesterSelect);
 
     subjectInfo.replaceChildren();
+
+    checkRegisterButton();
 
     if (!category1) return;
 
@@ -129,11 +152,12 @@ category2Select.addEventListener("change", () => {
     const category1 = category1Select.value;
     const category2 = category2Select.value;
 
-    subjectSelect.innerHTML =
-        '<option value="">選択してください</option>';
+    resetSelect(subjectSelect);
+    resetSelect(semesterSelect);
 
-    subjectSelect.disabled = true;
     subjectInfo.replaceChildren();
+
+    checkRegisterButton();
 
     if (!category2) return;
 
@@ -163,12 +187,18 @@ subjectSelect.addEventListener("change", () => {
 
     const subjectId = subjectSelect.value;
 
+    resetSelect(semesterSelect);
     subjectInfo.replaceChildren();
+
+    checkRegisterButton();
 
     if (!subjectId) return;
 
     const subject = subjects.find(s => s.id === subjectId);
 
+    if (!subject) return;
+
+    // 科目情報表示
     const name = document.createElement("h3");
     name.textContent = subject.name;
 
@@ -181,7 +211,32 @@ subjectSelect.addEventListener("change", () => {
 
     subjectInfo.append(name, credits, terms);
 
+
+    // ★ 開講学期をプルダウンに設定
+    subject.offeredTerm.forEach(term => {
+
+        const option = document.createElement("option");
+
+        option.value = term;
+        option.textContent = term + "学期";
+
+        semesterSelect.appendChild(option);
+
+    });
+
+    semesterSelect.disabled = false;
+
 });
+
+
+// 年度・学期変更時
+if (yearSelect) {
+    yearSelect.addEventListener("change", checkRegisterButton);
+}
+
+if (semesterSelect) {
+    semesterSelect.addEventListener("change", checkRegisterButton);
+}
 
 
 // 起動
