@@ -247,6 +247,8 @@ init();
 // 履修登録ボタン
 registerButton.addEventListener("click", async () => {
 
+    console.log("ボタン押下");
+
     // 選択内容を取得
     const academicYear = Number(yearSelect.value);
     const subjectId = subjectSelect.value;
