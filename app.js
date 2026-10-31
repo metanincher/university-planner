@@ -6,7 +6,9 @@ import {
     getFirestore,
     collection,
     getDocs,
-    addDoc
+    addDoc,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 
@@ -39,6 +41,18 @@ const yearSelect = document.getElementById("academicYear");
 const subjectInfo = document.getElementById("subjectInfo");
 const registerButton = document.getElementById("registerButton");
 
+// 履修状況表示用HTML要素
+const viewYearSelect =
+    document.getElementById("viewAcademicYear");
+
+const viewSemesterSelect =
+    document.getElementById("viewSemester");
+
+const viewButton =
+    document.getElementById("viewButton");
+
+const enrollmentList =
+    document.getElementById("enrollmentList");
 
 // プルダウン初期化用関数
 function resetSelect(select, disabled = true) {
@@ -303,4 +317,103 @@ registerButton.addEventListener("click", async () => {
     }
 
 });
+
+
+// 履修状況表示ボタン
+viewButton.addEventListener("click", async () => {
+
+    const academicYear = Number(viewYearSelect.value);
+    const semester = Number(viewSemesterSelect.value);
+
+    // 入力チェック
+    if (!viewYearSelect.value || !viewSemesterSelect.value) {
+        alert("年度と学期を選択してください。");
+        return;
+    }
+
+    // 表示領域を初期化
+    enrollmentList.replaceChildren();
+
+    enrollmentList.textContent = "読み込み中...";
+
+    try {
+
+        // Firestoreから履修データを取得
+        const q = query(
+            collection(
+                db,
+                "users",
+                "testUser001",
+                "enrollments"
+            ),
+            where("academicYear", "==", academicYear),
+            where("semester", "==", semester)
+        );
+
+        const snapshot = await getDocs(q);
+
+        enrollmentList.replaceChildren();
+
+        // 該当データがない場合
+        if (snapshot.empty) {
+
+            enrollmentList.textContent =
+                "該当する履修科目はありません。";
+
+            return;
+        }
+
+        // 履修データを順番に表示
+        snapshot.forEach(enrollmentDoc => {
+
+            const enrollment = enrollmentDoc.data();
+
+            // 科目マスターから科目情報を取得
+            const subject = subjects.find(
+                s => s.id === enrollment.subjectId
+            );
+
+            const div = document.createElement("div");
+            div.className = "enrollment-item";
+
+            const name = document.createElement("h3");
+
+            name.textContent = subject
+                ? subject.name
+                : "科目情報が見つかりません";
+
+            const category = document.createElement("p");
+
+            category.textContent = subject
+                ? subject.category1 + " / " + subject.category2
+                : "";
+
+            const credits = document.createElement("p");
+
+            credits.textContent = subject
+                ? "単位数：" + subject.credits
+                : "";
+
+            const result = document.createElement("p");
+
+            result.textContent =
+                "成績：" + enrollment.examResult;
+
+            div.append(name, category, credits, result);
+
+            enrollmentList.appendChild(div);
+
+        });
+
+    } catch (error) {
+
+        console.error("履修データ取得エラー:", error);
+
+        enrollmentList.textContent =
+            "読み込みエラー：" + error.message;
+
+    }
+
+});
+
 
