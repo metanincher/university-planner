@@ -11,12 +11,12 @@ import {
 
 // Firebase設定
 const firebaseConfig = {
-    apiKey: "ここに自分のAPIキー",
-    authDomain: "ここに自分のAuthDomain",
-    projectId: "ここに自分のProjectID",
-    storageBucket: "ここに自分のStorageBucket",
-    messagingSenderId: "ここに自分のMessagingSenderId",
-    appId: "ここに自分のAppId"
+  apiKey: "AIzaSyAbOQ2XmN_7fEZtVo8IFT9FbwjqkhXViPg",
+  authDomain: "university-planner-9c4c6.firebaseapp.com",
+  projectId: "university-planner-9c4c6",
+  storageBucket: "university-planner-9c4c6.firebasestorage.app",
+  messagingSenderId: "124072663091",
+  appId: "1:124072663091:web:5efb6cd37e50ecf98aab46"
 };
 
 
