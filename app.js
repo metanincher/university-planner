@@ -49,7 +49,9 @@ async function init() {
             id: doc.id,
             ...doc.data()
         }));
-
+        
+        console.log("取得した科目データ:", subjects);
+        
         // 大カテゴリを取得（重複を除く）
         const categories = [
             ...new Set(subjects.map(s => s.category1))
