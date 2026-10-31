@@ -550,7 +550,8 @@ viewButton.addEventListener("click", async () => {
     
 });
 
-// 卒業要件の単位数集計
+
+// 卒業要件の単位数集計・達成状況表示
 async function calculateGraduationRequirements() {
 
     graduationResults.textContent = "集計中...";
@@ -590,10 +591,7 @@ async function calculateGraduationRequirements() {
 
                 if (!subject) return null;
 
-                return {
-                    ...subject,
-                    examResult: e.examResult
-                };
+                return subject;
             })
             .filter(s => s !== null);
 
@@ -604,14 +602,15 @@ async function calculateGraduationRequirements() {
             return passedSubjects
                 .filter(filterFunction)
                 .reduce(
-                    (total, s) => total + Number(s.credits || 0),
+                    (total, s) =>
+                        total + Number(s.credits || 0),
                     0
                 );
 
         }
 
 
-        // 卒業要件ごとの集計
+        // 卒業要件の集計
         const results = [
 
             {
@@ -708,43 +707,108 @@ async function calculateGraduationRequirements() {
         ];
 
 
-        // 表示領域を初期化
-        graduationResults.replaceChildren();
-
-
-        // 卒業要件1：重複登録チェック
+        // 重複登録チェック
         const subjectIds = enrollments.map(e => e.subjectId);
 
         const hasDuplicate =
             new Set(subjectIds).size !== subjectIds.length;
 
-        const duplicateDiv =
-            document.createElement("div");
+
+        // 達成項目数を数える
+        const completedCount =
+            results.filter(r => r.credits >= r.required).length
+            + (hasDuplicate ? 0 : 1);
+
+        const totalCount = 11;
+
+        const progress =
+            completedCount / totalCount * 100;
+
+
+        // 表示領域を初期化
+        graduationResults.replaceChildren();
+
+
+        // 全体の達成状況
+        const summary = document.createElement("div");
+
+        summary.className = "graduation-summary";
+
+        const summaryTitle = document.createElement("h3");
+
+        summaryTitle.textContent = "卒業要件の達成状況";
+
+        const summaryNumber = document.createElement("div");
+
+        summaryNumber.className = "summary-number";
+
+        summaryNumber.textContent =
+            `${completedCount} / ${totalCount}`;
+
+        const summaryText = document.createElement("p");
+
+        summaryText.textContent =
+            completedCount === totalCount
+                ? "すべての卒業要件を達成しています！"
+                : "達成した卒業要件の数";
+
+        const progressBar = document.createElement("div");
+
+        progressBar.className = "graduation-progress";
+
+        const progressInner = document.createElement("div");
+
+        progressInner.className = "graduation-progress-bar";
+
+        progressInner.style.width = progress + "%";
+
+        progressBar.appendChild(progressInner);
+
+        summary.append(
+            summaryTitle,
+            summaryNumber,
+            summaryText,
+            progressBar
+        );
+
+        graduationResults.appendChild(summary);
+
+
+        // 卒業要件1
+        const duplicateDiv = document.createElement("div");
 
         duplicateDiv.className = "graduation-item";
 
-        const duplicateTitle =
-            document.createElement("h3");
+        const duplicateTitle = document.createElement("h3");
 
         duplicateTitle.textContent =
-            "1. 同一科目の重複登録チェック";
+            "1. 同一科目の重複登録なし";
 
-        const duplicateText =
-            document.createElement("p");
+        const duplicateText = document.createElement("p");
 
         duplicateText.textContent = hasDuplicate
-            ? "重複があります"
-            : "重複はありません";
+            ? "同じ科目が重複登録されています。"
+            : "重複登録はありません。";
+
+        const duplicateStatus = document.createElement("span");
+
+        duplicateStatus.className =
+            "graduation-status " +
+            (hasDuplicate ? "incomplete" : "complete");
+
+        duplicateStatus.textContent =
+            hasDuplicate ? "未達成" : "達成";
 
         duplicateDiv.append(
             duplicateTitle,
-            duplicateText
+            duplicateText,
+            duplicateStatus
         );
 
         graduationResults.appendChild(duplicateDiv);
 
 
-        // 各要件の表示
+        // 卒業要件2～11
         results.forEach(result => {
 
             const div = document.createElement("div");
@@ -752,6 +816,7 @@ async function calculateGraduationRequirements() {
             div.className = "graduation-item";
 
             const title = document.createElement("h3");
+
             title.textContent = result.name;
 
             const text = document.createElement("p");
@@ -759,7 +824,21 @@ async function calculateGraduationRequirements() {
             text.textContent =
                 `${result.credits} / ${result.required} 単位`;
 
-            div.append(title, text);
+            const status = document.createElement("span");
+
+            const completed =
+                result.credits >= result.required;
+
+            status.className =
+                "graduation-status " +
+                (completed ? "complete" : "incomplete");
+
+            status.textContent =
+                completed
+                    ? "達成"
+                    : `あと${result.required - result.credits}単位`;
+
+            div.append(title, text, status);
 
             graduationResults.appendChild(div);
 
@@ -777,4 +856,5 @@ async function calculateGraduationRequirements() {
     }
 
 }
+
 
