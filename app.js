@@ -53,7 +53,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
 const loginButton = document.getElementById("loginButton");
-const signupButton = document.getElementById("signupButton");
+//const signupButton = document.getElementById("signupButton");
 const logoutButton = document.getElementById("logoutButton");
 
 const authMessage = document.getElementById("authMessage");
@@ -96,7 +96,7 @@ function showAuthMessage(message) {
 
 function setAuthButtonsDisabled(disabled) {
     loginButton.disabled = disabled;
-    signupButton.disabled = disabled;
+    //signupButton.disabled = disabled;
     logoutButton.disabled = disabled;
 }
 
@@ -139,59 +139,6 @@ loginButton.addEventListener("click", async () => {
         showAuthMessage(
             messages[error.code] ||
             "ログインに失敗しました。：" + error.message
-        );
-
-    } finally {
-        setAuthButtonsDisabled(false);
-    }
-});
-
-
-// 新規アカウント登録
-signupButton.addEventListener("click", async () => {
-
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!email || !password) {
-        showAuthMessage("メールアドレスとパスワードを入力してください。");
-        return;
-    }
-
-    if (password.length < 6) {
-        showAuthMessage("パスワードは6文字以上にしてください。");
-        return;
-    }
-
-    setAuthButtonsDisabled(true);
-    showAuthMessage("アカウント登録中...");
-
-    try {
-
-        await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-
-        showAuthMessage("アカウントを登録しました！");
-
-    } catch (error) {
-
-        console.error("新規登録エラー:", error);
-
-        const messages = {
-            "auth/email-already-in-use":
-                "このメールアドレスはすでに登録されています。",
-            "auth/invalid-email":
-                "メールアドレスの形式が正しくありません。",
-            "auth/weak-password":
-                "パスワードが弱すぎます。6文字以上で設定してください。"
-        };
-
-        showAuthMessage(
-            messages[error.code] ||
-            "登録に失敗しました。：" + error.message
         );
 
     } finally {
