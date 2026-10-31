@@ -63,6 +63,9 @@ const graduationResults =
 const fourYearPlan =
     document.getElementById("fourYearPlan");
 
+const creditSummary =
+    document.getElementById("creditSummary");
+
 // プルダウン初期化用関数
 function resetSelect(select, disabled = true) {
     select.innerHTML =
@@ -74,7 +77,7 @@ function resetSelect(select, disabled = true) {
 // 初期処理
 async function init() {
 
-    console.log("init 8");
+    console.log("init 9");
     
     try {
 
@@ -548,7 +551,8 @@ viewButton.addEventListener("click", async () => {
             "読み込みエラー：" + error.message;
 
     }
-    
+
+    await calculateCreditSummary();
     await calculateGraduationRequirements();
     await displayFourYearPlan();
     
@@ -1027,3 +1031,319 @@ async function displayFourYearPlan() {
 
 }
 
+
+// 取得済み単位・履修予定単位の集計
+async function calculateCreditSummary() {
+
+    creditSummary.textContent = "集計中...";
+
+    try {
+
+        // 全履修データを取得
+        const snapshot = await getDocs(
+            collection(
+                db,
+                "users",
+                "testUser001",
+                "enrollments"
+            )
+        );
+
+        const enrollments = snapshot.docs.map(d => d.data());
+
+        // 科目情報を結合
+        const enrollmentSubjects = enrollments
+            .map(e => {
+
+                const subject = subjects.find(
+                    s => s.id === e.subjectId
+                );
+
+                if (!subject) return null;
+
+                return {
+                    ...subject,
+                    examResult: e.examResult
+                };
+
+            })
+            .filter(s => s !== null);
+
+
+        // 同一科目の重複を除く
+        const uniqueSubjects = [
+            ...new Map(
+                enrollmentSubjects.map(
+                    s => [s.id, s]
+                )
+            ).values()
+        ];
+
+
+        // 取得済み単位
+        const passedCredits = uniqueSubjects
+            .filter(s => s.examResult === "合格")
+            .reduce(
+                (total, s) =>
+                    total + Number(s.credits || 0),
+                0
+            );
+
+
+        // 履修予定単位（未受験）
+        const plannedCredits = uniqueSubjects
+            .filter(s => s.examResult === "未受験")
+            .reduce(
+                (total, s) =>
+                    total + Number(s.credits || 0),
+                0
+            );
+
+
+        // 合計
+        const totalCredits =
+            passedCredits + plannedCredits;
+
+        // 卒業必要単位
+        const requiredCredits = 124;
+
+        // 不足単位
+        const remainingCredits = Math.max(
+            0,
+            requiredCredits - totalCredits
+        );
+
+        // 進捗率
+        const progress = Math.min(
+            100,
+            totalCredits / requiredCredits * 100
+        );
+
+
+        // 表示領域初期化
+        creditSummary.replaceChildren();
+
+        const container =
+            document.createElement("div");
+
+        container.className = "credit-summary";
+
+
+        // タイトル
+        const title = document.createElement("h3");
+
+        title.textContent = "卒業までの単位取得状況";
+
+
+        // 数値表示用カード
+        const grid = document.createElement("div");
+
+        grid.className = "credit-summary-grid";
+
+
+        function createCard(label, value, color) {
+
+            const card = document.createElement("div");
+
+            card.className = "credit-summary-card";
+
+            const cardLabel =
+                document.createElement("div");
+
+            cardLabel.className = "credit-summary-label";
+
+            cardLabel.textContent = label;
+
+            const cardValue =
+                document.createElement("div");
+
+            cardValue.className = "credit-summary-value";
+
+            cardValue.style.color = color;
+
+            cardValue.textContent = value;
+
+            const unit = document.createElement("div");
+
+            unit.className = "credit-summary-unit";
+
+            unit.textContent = "単位";
+
+            card.append(
+                cardLabel,
+                cardValue,
+                unit
+            );
+
+            return card;
+
+        }
+
+
+        grid.append(
+            createCard(
+                "取得済み単位",
+                passedCredits,
+                "#16a34a"
+            ),
+            createCard(
+                "履修予定単位",
+                plannedCredits,
+                "#2563eb"
+            ),
+            createCard(
+                "卒業必要単位",
+                requiredCredits,
+                "#334155"
+            ),
+            createCard(
+                "計画上の不足",
+                remainingCredits,
+                remainingCredits === 0
+                    ? "#16a34a"
+                    : "#dc2626"
+            )
+        );
+
+
+        // 進捗タイトル
+        const progressTitle =
+            document.createElement("h4");
+
+        progressTitle.textContent =
+            "卒業必要単位に対する計画";
+
+
+        const progressText =
+            document.createElement("p");
+
+        progressText.textContent =
+            `${totalCredits} / ${requiredCredits} 単位`;
+
+
+        // プログレスバー
+        const progressBar =
+            document.createElement("div");
+
+        progressBar.className = "credit-progress";
+
+
+        const passedBar =
+            document.createElement("div");
+
+        passedBar.className = "credit-progress-passed";
+
+        passedBar.style.width =
+            Math.min(100, passedCredits / requiredCredits * 100) + "%";
+
+
+        const plannedBar =
+            document.createElement("div");
+
+        plannedBar.className = "credit-progress-planned";
+
+        plannedBar.style.width =
+            Math.min(
+                100 - passedCredits / requiredCredits * 100,
+                plannedCredits / requiredCredits * 100
+            ) + "%";
+
+
+        const remainingBar =
+            document.createElement("div");
+
+        remainingBar.className =
+            "credit-progress-remaining";
+
+        remainingBar.style.flex = "1";
+
+
+        progressBar.append(
+            passedBar,
+            plannedBar,
+            remainingBar
+        );
+
+
+        // 凡例
+        const legend =
+            document.createElement("div");
+
+        legend.className = "credit-legend";
+
+
+        function createLegend(color, label) {
+
+            const item =
+                document.createElement("div");
+
+            item.className = "credit-legend-item";
+
+            const square =
+                document.createElement("span");
+
+            square.className = "credit-legend-color";
+
+            square.style.background = color;
+
+            const text =
+                document.createElement("span");
+
+            text.textContent = label;
+
+            item.append(square, text);
+
+            return item;
+
+        }
+
+
+        legend.append(
+            createLegend("#16a34a", "取得済み"),
+            createLegend("#3b82f6", "履修予定"),
+            createLegend("#e2e8f0", "不足")
+        );
+
+
+        // 計画達成状況
+        const status =
+            document.createElement("p");
+
+        status.style.fontWeight = "bold";
+
+        status.textContent =
+            remainingCredits === 0
+                ? "計画上は卒業必要単位を満たしています！"
+                : `計画上、あと${remainingCredits}単位必要です。`;
+
+
+        container.append(
+            title,
+            grid,
+            progressTitle,
+            progressText,
+            progressBar,
+            legend,
+            status
+        );
+
+        creditSummary.appendChild(container);
+
+
+        console.log("単位数集計:", {
+            passedCredits,
+            plannedCredits,
+            totalCredits,
+            remainingCredits
+        });
+
+    } catch (error) {
+
+        console.error("単位数集計エラー:", error);
+
+        creditSummary.textContent =
+            "集計エラー：" + error.message;
+
+    }
+
+}
