@@ -321,7 +321,9 @@ registerButton.addEventListener("click", async () => {
 
 // 履修状況表示ボタン
 viewButton.addEventListener("click", async () => {
-
+    
+    console.log("Viewボタン押下");
+    
     const academicYear = Number(viewYearSelect.value);
     const semester = Number(viewSemesterSelect.value);
 
