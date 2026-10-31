@@ -11,7 +11,8 @@ import {
     where,
     updateDoc,
     deleteDoc,
-    doc
+    doc,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 
@@ -260,53 +261,63 @@ if (semesterSelect) {
 // 起動
 init();
 
-
 // 履修登録ボタン
 registerButton.addEventListener("click", async () => {
 
-    console.log("ボタン押下");
-
-    // 選択内容を取得
     const academicYear = Number(yearSelect.value);
     const subjectId = subjectSelect.value;
     const semester = Number(semesterSelect.value);
 
-    // 入力チェック
     if (!academicYear || !subjectId || !semester) {
         alert("年度・科目・学期を選択してください。");
         return;
     }
 
+    registerButton.disabled = true;
+
     try {
 
-        // Firestoreに保存するデータ
-        const enrollmentData = {
-            subjectId: subjectId,
-            academicYear: academicYear,
-            semester: semester,
-            examResult: "未受験"
-        };
-
-        // Firestoreに登録
-        const docRef = await addDoc(
-            collection(
-                db,
-                "users",
-                "testUser001",
-                "enrollments"
-            ),
-            enrollmentData
+        const enrollmentsRef = collection(
+            db,
+            "users",
+            "testUser001",
+            "enrollments"
         );
 
-        console.log("登録ID:", docRef.id);
+        await runTransaction(db, async (transaction) => {
+
+            const q = query(
+                enrollmentsRef,
+                where("subjectId", "==", subjectId)
+            );
+
+            const snapshot = await transaction.get(q);
+
+            if (!snapshot.empty) {
+
+                const existing = snapshot.docs[0].data();
+
+                throw new Error(
+                    `この科目はすでに${existing.academicYear}年度の${existing.semester}学期に登録されています。`
+                );
+
+            }
+
+            const newEnrollmentRef = doc(enrollmentsRef);
+
+            transaction.set(newEnrollmentRef, {
+                subjectId: subjectId,
+                academicYear: academicYear,
+                semester: semester,
+                examResult: "未受験"
+            });
+
+        });
 
         alert("履修登録しました！");
 
-        // 科目と学期の選択を初期化
         subjectSelect.value = "";
-
         resetSelect(semesterSelect);
-
         subjectInfo.replaceChildren();
 
         checkRegisterButton();
@@ -315,12 +326,15 @@ registerButton.addEventListener("click", async () => {
 
         console.error("履修登録エラー:", error);
 
-        alert("履修登録に失敗しました。\n" + error.message);
+        alert(error.message);
+
+    } finally {
+
+        checkRegisterButton();
 
     }
 
 });
-
 
 // 履修状況表示ボタン
 viewButton.addEventListener("click", async () => {
