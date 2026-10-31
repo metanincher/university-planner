@@ -14,6 +14,13 @@ import {
     doc
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
 // Firebase設定
 const firebaseConfig = {
@@ -30,10 +37,244 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const auth = getAuth(app);
+
+// ログイン中のユーザー
+let currentUser = null;
 
 // 科目データを保存する配列
 let subjects = [];
 
+// HTML要素
+const authPanel = document.getElementById("authPanel");
+const appContent = document.getElementById("appContent");
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+const loginButton = document.getElementById("loginButton");
+const signupButton = document.getElementById("signupButton");
+const logoutButton = document.getElementById("logoutButton");
+
+const authMessage = document.getElementById("authMessage");
+const userEmail = document.getElementById("userEmail");
+
+
+// 現在のユーザー専用の履修データ保存先
+function enrollmentCollectionRef() {
+    if (!currentUser) {
+        throw new Error("ログインしてください。");
+    }
+
+    return collection(
+        db,
+        "users",
+        currentUser.uid,
+        "enrollments"
+    );
+}
+
+
+// 現在のユーザー専用の履修データ参照先
+function enrollmentDocRef(enrollmentId) {
+    if (!currentUser) {
+        throw new Error("ログインしてください。");
+    }
+
+    return doc(
+        db,
+        "users",
+        currentUser.uid,
+        "enrollments",
+        enrollmentId
+    );
+}
+
+function showAuthMessage(message) {
+    authMessage.textContent = message;
+}
+
+function setAuthButtonsDisabled(disabled) {
+    loginButton.disabled = disabled;
+    signupButton.disabled = disabled;
+    logoutButton.disabled = disabled;
+}
+
+
+// ログイン
+loginButton.addEventListener("click", async () => {
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+        showAuthMessage("メールアドレスとパスワードを入力してください。");
+        return;
+    }
+
+    setAuthButtonsDisabled(true);
+    showAuthMessage("ログイン中...");
+
+    try {
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        showAuthMessage("");
+
+    } catch (error) {
+
+        console.error("ログインエラー:", error);
+
+        const messages = {
+            "auth/invalid-email": "メールアドレスの形式が正しくありません。",
+            "auth/invalid-credential": "メールアドレスまたはパスワードが違います。",
+            "auth/user-not-found": "アカウントが見つかりません。",
+            "auth/wrong-password": "パスワードが違います。",
+            "auth/too-many-requests": "ログイン試行回数が多すぎます。時間をおいてください。"
+        };
+
+        showAuthMessage(
+            messages[error.code] ||
+            "ログインに失敗しました。：" + error.message
+        );
+
+    } finally {
+        setAuthButtonsDisabled(false);
+    }
+});
+
+
+// 新規アカウント登録
+signupButton.addEventListener("click", async () => {
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+        showAuthMessage("メールアドレスとパスワードを入力してください。");
+        return;
+    }
+
+    if (password.length < 6) {
+        showAuthMessage("パスワードは6文字以上にしてください。");
+        return;
+    }
+
+    setAuthButtonsDisabled(true);
+    showAuthMessage("アカウント登録中...");
+
+    try {
+
+        await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        showAuthMessage("アカウントを登録しました！");
+
+    } catch (error) {
+
+        console.error("新規登録エラー:", error);
+
+        const messages = {
+            "auth/email-already-in-use":
+                "このメールアドレスはすでに登録されています。",
+            "auth/invalid-email":
+                "メールアドレスの形式が正しくありません。",
+            "auth/weak-password":
+                "パスワードが弱すぎます。6文字以上で設定してください。"
+        };
+
+        showAuthMessage(
+            messages[error.code] ||
+            "登録に失敗しました。：" + error.message
+        );
+
+    } finally {
+        setAuthButtonsDisabled(false);
+    }
+});
+
+
+// ログアウト
+logoutButton.addEventListener("click", async () => {
+
+    if (!confirm("ログアウトしますか？")) {
+        return;
+    }
+
+    logoutButton.disabled = true;
+
+    try {
+
+        await signOut(auth);
+
+    } catch (error) {
+
+        console.error("ログアウトエラー:", error);
+        alert("ログアウトに失敗しました。");
+
+    } finally {
+        logoutButton.disabled = false;
+    }
+});
+
+
+// ログイン状態の監視
+onAuthStateChanged(auth, async (user) => {
+
+    currentUser = user;
+
+    if (user) {
+
+        // ログイン済み
+        authPanel.hidden = true;
+        appContent.hidden = false;
+
+        userEmail.textContent = user.email || "";
+
+        document.getElementById("status").textContent =
+            "ログインしました。科目データを読み込んでいます...";
+
+        try {
+
+            await init();
+
+        } catch (error) {
+
+            console.error("初期化エラー:", error);
+
+            document.getElementById("status").textContent =
+                "初期化エラー：" + error.message;
+        }
+
+    } else {
+
+        // ログアウト状態
+        authPanel.hidden = false;
+        appContent.hidden = true;
+
+        userEmail.textContent = "";
+
+        emailInput.value = "";
+        passwordInput.value = "";
+
+        showAuthMessage("");
+
+        // 前のユーザーの画面情報を消去
+        enrollmentList.replaceChildren();
+        creditSummary.replaceChildren();
+        graduationResults.replaceChildren();
+
+        fourYearPlan.replaceChildren();
+
+        subjects = [];
+    }
+});
 
 // HTML要素
 const category1Select = document.getElementById("category1");
@@ -269,7 +510,7 @@ if (semesterSelect) {
 
 
 // 起動
-init();
+//init();
 
 
 // 履修登録ボタン
