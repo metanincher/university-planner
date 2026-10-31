@@ -24,33 +24,46 @@
         Firebase接続確認中...
     </div>
 
-    <h2>科目検索</h2>
+
+    <h2>履修登録</h2>
 
     <div class="search-form">
-
+    
+        <label>年度</label>
+        <select id="academicYear">
+            <option value="">選択してください</option>
+            <option value="2026">2026年度</option>
+            <option value="2027">2027年度</option>
+            <option value="2028">2028年度</option>
+            <option value="2029">2029年度</option>
+        </select>
+    
         <label>大カテゴリ</label>
-
         <select id="category1">
             <option value="">選択してください</option>
         </select>
-
-
+    
         <label>中カテゴリ</label>
-
         <select id="category2" disabled>
             <option value="">選択してください</option>
         </select>
-
-
+    
         <label>科目</label>
-
         <select id="subject" disabled>
             <option value="">選択してください</option>
         </select>
-
-
+    
+        <label>学期</label>
+        <select id="semester" disabled>
+            <option value="">選択してください</option>
+        </select>
+    
         <div id="subjectInfo"></div>
-
+    
+        <button id="registerButton" disabled>
+            履修登録
+        </button>
+    
     </div>
 
 </div>
