@@ -241,3 +241,63 @@ h1 {
     color: #92400e;
 }
 
+
+.year-plan {
+    margin-bottom: 24px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.year-plan h3 {
+    margin: 0 0 12px;
+    font-size: 19px;
+}
+
+.year-plan-total {
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.semester-plan {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+}
+
+.semester-plan h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.semester-subject {
+    padding: 5px 0;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.semester-subject:last-child {
+    border-bottom: none;
+}
+
+.semester-empty {
+    color: #999;
+    font-size: 13px;
+}
+
+.four-year-total {
+    padding: 18px;
+    margin-top: 15px;
+    background: #eff6ff;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.four-year-total strong {
+    display: block;
+    font-size: 26px;
+    color: #2563eb;
+}
+
