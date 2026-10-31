@@ -57,6 +57,9 @@ const viewButton =
 const enrollmentList =
     document.getElementById("enrollmentList");
 
+const graduationResults =
+    document.getElementById("graduationResults");
+
 // プルダウン初期化用関数
 function resetSelect(select, disabled = true) {
     select.innerHTML =
@@ -532,6 +535,8 @@ viewButton.addEventListener("click", async () => {
             enrollmentList.appendChild(div);
 
         });
+        
+        await calculateGraduationRequirements();
 
     } catch (error) {
 
@@ -543,3 +548,232 @@ viewButton.addEventListener("click", async () => {
     }
 
 });
+
+// 卒業要件の単位数集計
+async function calculateGraduationRequirements() {
+
+    graduationResults.textContent = "集計中...";
+
+    try {
+
+        // 全履修データを取得
+        const snapshot = await getDocs(
+            collection(
+                db,
+                "users",
+                "testUser001",
+                "enrollments"
+            )
+        );
+
+        const enrollments = snapshot.docs.map(d => d.data());
+
+        // 合格した科目だけ抽出
+        const passed = enrollments.filter(
+            e => e.examResult === "合格"
+        );
+
+        // 科目IDごとに重複を除く
+        const uniquePassed = [
+            ...new Map(
+                passed.map(e => [e.subjectId, e])
+            ).values()
+        ];
+
+        // 科目情報を結合
+        const passedSubjects = uniquePassed
+            .map(e => {
+                const subject = subjects.find(
+                    s => s.id === e.subjectId
+                );
+
+                if (!subject) return null;
+
+                return {
+                    ...subject,
+                    examResult: e.examResult
+                };
+            })
+            .filter(s => s !== null);
+
+
+        // 単位数を合計する関数
+        function sumCredits(filterFunction) {
+
+            return passedSubjects
+                .filter(filterFunction)
+                .reduce(
+                    (total, s) => total + Number(s.credits || 0),
+                    0
+                );
+
+        }
+
+
+        // 卒業要件ごとの集計
+        const results = [
+
+            {
+                name: "2. 教養・必修",
+                credits: sumCredits(s =>
+                    s.category1 === "教養" &&
+                    s.required_type === "必修"
+                ),
+                required: 1
+            },
+
+            {
+                name: "3. 教養・外国語",
+                credits: sumCredits(s =>
+                    s.category1 === "教養" &&
+                    s.category2 === "外国語"
+                ),
+                required: 2
+            },
+
+            {
+                name: "4. 教養・選択",
+                credits: sumCredits(s =>
+                    s.category1 === "教養" &&
+                    s.required_type === "選択"
+                ),
+                required: 30
+            },
+
+            {
+                name: "5. 専門・必修",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    s.required_type === "必修"
+                ),
+                required: 30
+            },
+
+            {
+                name: "6. 情報社会・データサイエンス",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    ["情報社会", "データサイエンス"]
+                        .includes(s.category2)
+                ),
+                required: 5
+            },
+
+            {
+                name: "7. 情報システム",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    s.category2 === "情報システム"
+                ),
+                required: 5
+            },
+
+            {
+                name: "8. マネジメント基礎",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    s.category2 === "マネジメント基礎"
+                ),
+                required: 5
+            },
+
+            {
+                name: "9. 指定演習",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    s.category2 === "指定演習"
+                ),
+                required: 2
+            },
+
+            {
+                name: "10. 専門・選択必修",
+                credits: sumCredits(s =>
+                    s.category1 === "専門" &&
+                    s.required_type === "選択必修"
+                ),
+                required: 32
+            },
+
+            {
+                name: "11. 総取得単位",
+                credits: sumCredits(s =>
+                    s.category1 === "教養" ||
+                    s.category1 === "専門"
+                ),
+                required: 124
+            }
+
+        ];
+
+
+        // 表示領域を初期化
+        graduationResults.replaceChildren();
+
+
+        // 卒業要件1：重複登録チェック
+        const subjectIds = enrollments.map(e => e.subjectId);
+
+        const hasDuplicate =
+            new Set(subjectIds).size !== subjectIds.length;
+
+        const duplicateDiv =
+            document.createElement("div");
+
+        duplicateDiv.className = "graduation-item";
+
+        const duplicateTitle =
+            document.createElement("h3");
+
+        duplicateTitle.textContent =
+            "1. 同一科目の重複登録チェック";
+
+        const duplicateText =
+            document.createElement("p");
+
+        duplicateText.textContent = hasDuplicate
+            ? "重複があります"
+            : "重複はありません";
+
+        duplicateDiv.append(
+            duplicateTitle,
+            duplicateText
+        );
+
+        graduationResults.appendChild(duplicateDiv);
+
+
+        // 各要件の表示
+        results.forEach(result => {
+
+            const div = document.createElement("div");
+
+            div.className = "graduation-item";
+
+            const title = document.createElement("h3");
+            title.textContent = result.name;
+
+            const text = document.createElement("p");
+
+            text.textContent =
+                `${result.credits} / ${result.required} 単位`;
+
+            div.append(title, text);
+
+            graduationResults.appendChild(div);
+
+        });
+
+        console.log("卒業要件集計結果:", results);
+
+    } catch (error) {
+
+        console.error("卒業要件集計エラー:", error);
+
+        graduationResults.textContent =
+            "集計エラー：" + error.message;
+
+    }
+
+}
+
