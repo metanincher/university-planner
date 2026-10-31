@@ -71,7 +71,7 @@ function resetSelect(select, disabled = true) {
 // 初期処理
 async function init() {
 
-    console.log("init 2");
+    console.log("init 3");
     
     try {
 
