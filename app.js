@@ -536,7 +536,6 @@ viewButton.addEventListener("click", async () => {
 
         });
         
-        await calculateGraduationRequirements();
 
     } catch (error) {
 
@@ -546,7 +545,9 @@ viewButton.addEventListener("click", async () => {
             "読み込みエラー：" + error.message;
 
     }
-
+    
+    await calculateGraduationRequirements();
+    
 });
 
 // 卒業要件の単位数集計
