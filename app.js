@@ -578,37 +578,50 @@ async function calculateGraduationRequirements() {
 
         const enrollments = snapshot.docs.map(d => d.data());
 
-        // 合格した科目だけ抽出
-        const passed = enrollments.filter(
-            e => e.examResult === "合格"
-        );
-
-        // 科目IDごとに重複を除く
-        const uniquePassed = [
-            ...new Map(
-                passed.map(e => [e.subjectId, e])
-            ).values()
-        ];
-
         // 科目情報を結合
-        const passedSubjects = uniquePassed
+        const enrollmentSubjects = enrollments
             .map(e => {
+
                 const subject = subjects.find(
                     s => s.id === e.subjectId
                 );
 
                 if (!subject) return null;
 
-                return subject;
+                return {
+                    ...subject,
+                    examResult: e.examResult || "未受験"
+                };
+
             })
             .filter(s => s !== null);
 
+        // 科目IDごとに重複を除く
+        const uniqueSubjects = [
+            ...new Map(
+                enrollmentSubjects.map(
+                    s => [s.id, s]
+                )
+            ).values()
+        ];
 
-        // 単位数を合計する関数
-        function sumCredits(filterFunction) {
+        // 重複登録チェック
+        const subjectIds = enrollments.map(e => e.subjectId);
 
-            return passedSubjects
-                .filter(filterFunction)
+        const hasDuplicate =
+            new Set(subjectIds).size !== subjectIds.length;
+
+        // 単位数集計関数
+        function sumCredits(filterFunction, resultType) {
+
+            return uniqueSubjects
+                .filter(s =>
+                    filterFunction(s) &&
+                    (
+                        resultType === "all" ||
+                        s.examResult === resultType
+                    )
+                )
                 .reduce(
                     (total, s) =>
                         total + Number(s.credits || 0),
@@ -617,183 +630,187 @@ async function calculateGraduationRequirements() {
 
         }
 
-
-        // 卒業要件の集計
-        const results = [
+        // 卒業要件
+        const requirements = [
 
             {
                 name: "2. 教養・必修",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "教養" &&
-                    s.required_type === "必修"
-                ),
+                    s.required_type === "必修",
                 required: 1
             },
 
             {
                 name: "3. 教養・外国語",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "教養" &&
-                    s.category2 === "外国語"
-                ),
+                    s.category2 === "外国語",
                 required: 2
             },
 
             {
                 name: "4. 教養・選択",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "教養" &&
-                    s.required_type === "選択"
-                ),
+                    s.required_type === "選択",
                 required: 30
             },
 
             {
                 name: "5. 専門・必修",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
-                    s.required_type === "必修"
-                ),
+                    s.required_type === "必修",
                 required: 30
             },
 
             {
                 name: "6. 情報社会・データサイエンス",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
                     ["情報社会", "データサイエンス"]
-                        .includes(s.category2)
-                ),
+                        .includes(s.category2),
                 required: 5
             },
 
             {
                 name: "7. 情報システム",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
-                    s.category2 === "情報システム"
-                ),
+                    s.category2 === "情報システム",
                 required: 5
             },
 
             {
                 name: "8. マネジメント基礎",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
-                    s.category2 === "マネジメント基礎"
-                ),
+                    s.category2 === "マネジメント基礎",
                 required: 5
             },
 
             {
                 name: "9. 指定演習",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
-                    s.category2 === "指定演習"
-                ),
+                    s.category2 === "指定演習",
                 required: 2
             },
 
             {
                 name: "10. 専門・選択必修",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "専門" &&
-                    s.required_type === "選択必修"
-                ),
+                    s.required_type === "選択必修",
                 required: 32
             },
 
             {
                 name: "11. 総取得単位",
-                credits: sumCredits(s =>
+                filter: s =>
                     s.category1 === "教養" ||
-                    s.category1 === "専門"
-                ),
+                    s.category1 === "専門",
                 required: 124
             }
 
         ];
 
+        // 各要件の取得済み・履修予定単位を計算
+        const results = requirements.map(requirement => {
 
-        // 重複登録チェック
-        const subjectIds = enrollments.map(e => e.subjectId);
+            const passed = sumCredits(
+                requirement.filter,
+                "合格"
+            );
 
-        const hasDuplicate =
-            new Set(subjectIds).size !== subjectIds.length;
+            const planned = sumCredits(
+                requirement.filter,
+                "未受験"
+            );
 
+            return {
+                ...requirement,
+                passed,
+                planned,
+                total: passed + planned,
+                remaining: Math.max(
+                    0,
+                    requirement.required - passed - planned
+                )
+            };
 
-        // 達成項目数を数える
-        const completedCount =
-            results.filter(r => r.credits >= r.required).length
-            + (hasDuplicate ? 0 : 1);
-
-        const totalCount = 11;
-
-        const progress =
-            completedCount / totalCount * 100;
-
-
-        // 表示領域を初期化
-        graduationResults.replaceChildren();
-
+        });
 
         // 全体の達成状況
-        const summary = document.createElement("div");
+        // 実際の達成：合格単位のみ
+        // 計画上の達成：合格＋未受験
+        const actualCompleted = results.filter(
+            r => r.passed >= r.required
+        ).length;
 
+        const plannedCompleted = results.filter(
+            r => r.total >= r.required
+        ).length;
+
+        const totalCount = results.length;
+
+        // 表示領域初期化
+        graduationResults.replaceChildren();
+
+        // 全体サマリー
+        const summary = document.createElement("div");
         summary.className = "graduation-summary";
 
-        const summaryTitle = document.createElement("h3");
+        const title = document.createElement("h3");
+        title.textContent = "卒業要件の達成状況";
 
-        summaryTitle.textContent = "卒業要件の達成状況";
+        const actualText = document.createElement("p");
+        actualText.textContent =
+            `取得済みで達成：${actualCompleted} / ${totalCount} 項目`;
+
+        const plannedText = document.createElement("p");
+        plannedText.textContent =
+            `履修予定を含めた達成：${plannedCompleted} / ${totalCount} 項目`;
 
         const summaryNumber = document.createElement("div");
-
         summaryNumber.className = "summary-number";
-
         summaryNumber.textContent =
-            `${completedCount} / ${totalCount}`;
+            `${plannedCompleted} / ${totalCount}`;
 
-        const summaryText = document.createElement("p");
-
-        summaryText.textContent =
-            completedCount === totalCount
-                ? "すべての卒業要件を達成しています！"
-                : "達成した卒業要件の数";
+        const summaryLabel = document.createElement("p");
+        summaryLabel.textContent = "計画上の達成項目数";
 
         const progressBar = document.createElement("div");
-
         progressBar.className = "graduation-progress";
 
         const progressInner = document.createElement("div");
-
         progressInner.className = "graduation-progress-bar";
 
-        progressInner.style.width = progress + "%";
+        progressInner.style.width =
+            (plannedCompleted / totalCount * 100) + "%";
 
         progressBar.appendChild(progressInner);
 
         summary.append(
-            summaryTitle,
+            title,
+            actualText,
+            plannedText,
             summaryNumber,
-            summaryText,
+            summaryLabel,
             progressBar
         );
 
         graduationResults.appendChild(summary);
 
-
-        // 卒業要件1
+        // 重複登録チェック
         const duplicateDiv = document.createElement("div");
-
         duplicateDiv.className = "graduation-item";
 
         const duplicateTitle = document.createElement("h3");
-
-        duplicateTitle.textContent =
-            "1. 同一科目の重複登録なし";
+        duplicateTitle.textContent = "1. 同一科目の重複登録";
 
         const duplicateText = document.createElement("p");
-
         duplicateText.textContent = hasDuplicate
             ? "同じ科目が重複登録されています。"
             : "重複登録はありません。";
@@ -805,7 +822,7 @@ async function calculateGraduationRequirements() {
             (hasDuplicate ? "incomplete" : "complete");
 
         duplicateStatus.textContent =
-            hasDuplicate ? "未達成" : "達成";
+            hasDuplicate ? "要確認" : "問題なし";
 
         duplicateDiv.append(
             duplicateTitle,
@@ -815,42 +832,114 @@ async function calculateGraduationRequirements() {
 
         graduationResults.appendChild(duplicateDiv);
 
-
-        // 卒業要件2～11
+        // 各卒業要件を表示
         results.forEach(result => {
 
             const div = document.createElement("div");
-
             div.className = "graduation-item";
 
             const title = document.createElement("h3");
-
             title.textContent = result.name;
 
-            const text = document.createElement("p");
+            const passedText = document.createElement("p");
+            passedText.textContent =
+                `取得済み：${result.passed} / ${result.required} 単位`;
 
-            text.textContent =
-                `${result.credits} / ${result.required} 単位`;
+            const plannedText = document.createElement("p");
+            plannedText.textContent =
+                `履修予定：${result.planned} 単位`;
 
-            const status = document.createElement("span");
+            const totalText = document.createElement("p");
+            totalText.textContent =
+                `計画上の合計：${result.total} / ${result.required} 単位`;
 
-            const completed =
-                result.credits >= result.required;
+            // 実際の達成状況
+            const actualStatus = document.createElement("span");
 
-            status.className =
+            const actualComplete =
+                result.passed >= result.required;
+
+            actualStatus.className =
                 "graduation-status " +
-                (completed ? "complete" : "incomplete");
+                (actualComplete ? "complete" : "incomplete");
 
-            status.textContent =
-                completed
-                    ? "達成"
-                    : `あと${result.required - result.credits}単位`;
+            actualStatus.textContent =
+                actualComplete
+                    ? "取得済みで達成"
+                    : `取得済みではあと${Math.max(
+                        0,
+                        result.required - result.passed
+                    )}単位`;
 
-            div.append(title, text, status);
+            // 計画上の達成状況
+            const plannedStatus = document.createElement("span");
+
+            const plannedComplete =
+                result.total >= result.required;
+
+            plannedStatus.className =
+                "graduation-status " +
+                (plannedComplete ? "complete" : "incomplete");
+
+            plannedStatus.style.marginLeft = "8px";
+
+            plannedStatus.textContent =
+                plannedComplete
+                    ? "計画上は達成"
+                    : `計画上あと${result.remaining}単位`;
+
+            div.append(
+                title,
+                passedText,
+                plannedText,
+                totalText,
+                actualStatus,
+                plannedStatus
+            );
 
             graduationResults.appendChild(div);
 
         });
+
+        // 最終判定
+        const finalDiv = document.createElement("div");
+        finalDiv.className = "graduation-summary";
+
+        const finalTitle = document.createElement("h3");
+        finalTitle.textContent = "卒業見込み判定";
+
+        const allPlannedComplete =
+            results.every(r => r.total >= r.required);
+
+        const allActualComplete =
+            results.every(r => r.passed >= r.required);
+
+        const finalText = document.createElement("p");
+
+        if (hasDuplicate) {
+
+            finalText.textContent =
+                "同一科目の重複登録があります。履修計画を確認してください。";
+
+        } else if (allActualComplete) {
+
+            finalText.textContent =
+                "すべての単位要件を取得済みです！";
+
+        } else if (allPlannedComplete) {
+
+            finalText.textContent =
+                "現在の履修計画では、すべての単位要件を満たす見込みです。未受験科目の合格が必要です。";
+
+        } else {
+
+            finalText.textContent =
+                "現在の履修計画では、一部の卒業要件が不足しています。";
+
+        }
+
+        finalDiv.append(finalTitle, finalText);
+        graduationResults.appendChild(finalDiv);
 
         console.log("卒業要件集計結果:", results);
 
