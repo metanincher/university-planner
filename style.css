@@ -1,103 +1,729 @@
 
-/* ログイン画面 */
+/* ========================================
+   1. 基本デザイン
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 40px 20px;
+    background: #f1f5f9;
+    color: #1e293b;
+    font-family:
+        "Noto Sans JP",
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
+    line-height: 1.7;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, p {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #1e3a8a;
+}
+
+h2 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+}
+
+h3 {
+    font-size: 17px;
+    color: #1e3a8a;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 38px 0;
+}
+
+
+/* ========================================
+   2. ログイン画面
+======================================== */
 
 #authPanel {
-    max-width: 400px;
-    margin: 30px auto;
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 40px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.07);
 }
 
 #authPanel h2 {
     text-align: center;
-    color: #2563eb;
-    margin-bottom: 25px;
+    color: #1e3a8a;
+    font-size: 25px;
+    margin-bottom: 30px;
 }
 
 #authPanel label {
     display: block;
-    font-weight: bold;
-    margin-top: 18px;
+    margin-top: 20px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
 }
 
 #authPanel input {
-    box-sizing: border-box;
     width: 100%;
-    padding: 13px;
-    margin-top: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
+    padding: 13px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #f8fafc;
+    font-size: 15px;
+    transition: 0.2s;
 }
 
 #authPanel input:focus {
-    outline: 2px solid #93c5fd;
+    outline: none;
     border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 #authPanel button {
     width: 100%;
-    padding: 13px;
-    margin-top: 15px;
+    padding: 14px;
+    margin-top: 25px;
     border: none;
-    border-radius: 6px;
+    border-radius: 9px;
     background: #2563eb;
     color: white;
     font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
+    transition: 0.2s;
 }
 
-#authPanel button:disabled,
-#logoutButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-#authPanel button:hover,
-#logoutButton:hover {
-    opacity: 0.85;
+#authPanel button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 #authMessage {
+    margin-top: 15px;
     color: #dc2626;
-    font-size: 14px;
+    font-size: 13px;
     white-space: pre-wrap;
 }
 
-/* アプリヘッダー */
+
+/* ========================================
+   3. アプリヘッダー
+======================================== */
 
 .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    gap: 20px;
+    padding: 28px 32px;
+    margin-bottom: 25px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+.app-header h1 {
+    margin-bottom: 2px;
+}
+
+.app-header p {
+    margin-bottom: 3px;
+    color: #64748b;
 }
 
 #userEmail {
-    color: #64748b;
     font-size: 13px;
     overflow-wrap: anywhere;
 }
 
 #logoutButton {
-    padding: 10px 18px;
-    background: #dc2626;
-    color: white;
+    padding: 10px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#logoutButton:hover {
+    background: #fecaca;
+}
+
+#status {
+    padding: 13px 18px;
+    margin-bottom: 30px;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 14px;
+}
+
+
+/* ========================================
+   4. セクション見出し
+======================================== */
+
+#appContent > h2 {
+    padding-left: 14px;
+    border-left: 5px solid #2563eb;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+
+/* ========================================
+   5. フォーム・入力欄
+======================================== */
+
+.search-form {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px 18px;
+    padding: 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.035);
+}
+
+.search-form label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.search-form select,
+#enrollmentList select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
     font-size: 14px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-form select:focus,
+#enrollmentList select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+select:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.search-form button {
+    grid-column: 1 / -1;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-form button:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.search-form button:disabled {
+    background: #cbd5e1;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+#subjectInfo {
+    grid-column: 1 / -1;
+    padding: 18px;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+}
+
+#subjectInfo h3 {
+    margin-bottom: 10px;
+}
+
+#subjectInfo p {
+    margin-bottom: 4px;
+    color: #475569;
+    font-size: 14px;
+}
+
+
+/* ========================================
+   6. 履修状況
+======================================== */
+
+#enrollmentList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+}
+
+.enrollment-item {
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition: 0.2s;
+    min-width: 0;
+}
+
+.enrollment-item:hover {
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+}
+
+.enrollment-item h3 {
+    margin-bottom: 8px;
+}
+
+.enrollment-item p {
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.enrollment-item label {
+    display: block;
+    margin: 15px 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.enrollment-item select {
+    margin-bottom: 12px;
+}
+
+.delete-button {
+    display: block;
+    margin-left: auto;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.delete-button:hover {
+    background: #fecaca;
+}
+
+
+/* ========================================
+   7. 単位数集計
+======================================== */
+
+.credit-summary,
+.graduation-summary {
+    padding: 25px;
+    margin-bottom: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+}
+
+.credit-summary h3,
+.graduation-summary h3 {
+    margin-bottom: 20px;
+}
+
+.credit-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 20px 0 28px;
+}
+
+.credit-summary-card {
+    padding: 20px 12px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    min-width: 0;
+}
+
+.credit-summary-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.credit-summary-value {
+    margin: 8px 0;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.credit-summary-unit {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.credit-summary h4 {
+    margin: 25px 0 8px;
+    font-size: 15px;
+}
+
+.credit-summary p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.credit-progress {
+    display: flex;
+    overflow: hidden;
+    height: 13px;
+    margin: 15px 0;
+    border-radius: 20px;
+    background: #e2e8f0;
+}
+
+.credit-progress-passed {
+    background: #16a34a;
+}
+
+.credit-progress-planned {
+    background: #3b82f6;
+}
+
+.credit-progress-remaining {
+    background: #e2e8f0;
+}
+
+.credit-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 15px 0;
+}
+
+.credit-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.credit-legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+
+/* ========================================
+   8. 卒業要件チェック
+======================================== */
+
+.graduation-summary {
+    border-left: 4px solid #2563eb;
+}
+
+.graduation-summary p {
+    color: #475569;
+    font-size: 14px;
+}
+
+.summary-number {
+    margin-top: 20px;
+    color: #2563eb;
+    font-size: 38px;
+    font-weight: 800;
+}
+
+.graduation-progress {
+    overflow: hidden;
+    height: 12px;
+    margin-top: 15px;
+    background: #e2e8f0;
+    border-radius: 20px;
+}
+
+.graduation-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    border-radius: 20px;
+    transition: width 0.4s;
+}
+
+.graduation-item {
+    padding: 22px;
+    margin-bottom: 13px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    transition: 0.2s;
+}
+
+.graduation-item:hover {
+    border-color: #93c5fd;
+}
+
+.graduation-item h3 {
+    margin-bottom: 12px;
+}
+
+.graduation-item p {
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.graduation-status {
+    display: inline-block;
+    padding: 5px 11px;
+    margin-top: 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.graduation-status.complete {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.graduation-status.incomplete {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+
+/* ========================================
+   9. 4年間の履修計画
+======================================== */
+
+#fourYearPlan {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.year-plan {
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    min-width: 0;
+}
+
+.year-plan > h3 {
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid #dbeafe;
+    font-size: 20px;
+}
+
+.semester-plan {
+    padding: 15px;
+    margin-bottom: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+}
+
+.semester-plan h4 {
+    margin-bottom: 10px;
+    color: #1d4ed8;
+    font-size: 14px;
+}
+
+.semester-subject {
+    padding: 9px 12px;
+    margin-bottom: 7px;
+    background: #ffffff;
+    border-left: 3px solid #60a5fa;
+    border-radius: 5px;
+    color: #334155;
+    font-size: 13px;
+}
+
+.semester-empty {
+    padding: 8px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.year-plan-total {
+    margin: 12px 0 0;
+    color: #1e3a8a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.four-year-total {
+    grid-column: 1 / -1;
+    padding: 25px;
+    text-align: center;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 13px;
+}
+
+.four-year-total p {
+    margin-bottom: 5px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.four-year-total strong {
+    color: #2563eb;
+    font-size: 34px;
+}
+
+
+/* ========================================
+   10. 共通設定
+======================================== */
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 [hidden] {
     display: none !important;
 }
 
+
+/* ========================================
+   11. タブレット・スマートフォン対応
+======================================== */
+
+@media (max-width: 768px) {
+
+    body {
+        padding: 20px 14px;
+    }
+
+    .app-header {
+        padding: 22px;
+    }
+
+    .credit-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #fourYearPlan {
+        grid-template-columns: 1fr;
+    }
+
+    #enrollmentList {
+        grid-template-columns: 1fr;
+    }
+
+    .search-form {
+        padding: 20px;
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .search-form button,
+    #subjectInfo {
+        grid-column: auto;
+    }
+}
+
 @media (max-width: 480px) {
+
+    body {
+        padding: 12px;
+    }
+
+    #authPanel {
+        margin: 35px auto;
+        padding: 25px 20px;
+    }
+
     .app-header {
         align-items: flex-start;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .app-header h1 {
+        font-size: 23px;
     }
 
     #logoutButton {
-        margin-top: 10px;
+        width: 100%;
+    }
+
+    h2 {
+        font-size: 19px;
+    }
+
+    .credit-summary {
+        padding: 18px;
+    }
+
+    .credit-summary-value {
+        font-size: 26px;
+    }
+
+    .graduation-item,
+    .year-plan {
+        padding: 17px;
+    }
+
+    .graduation-status {
+        margin-left: 0 !important;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .four-year-total strong {
+        font-size: 29px;
     }
 }
