@@ -74,3 +74,21 @@ h1 {
     background: #eff6ff;
     border-radius: 8px;
 }
+
+
+.search-form button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.search-form button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
