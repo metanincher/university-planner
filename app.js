@@ -82,7 +82,7 @@ async function init() {
             ...doc.data()
         }));
 
-        console.log("取得した科目データ:", subjects);
+        console.log("★取得した科目データ:", subjects);
 
         // 大カテゴリを取得（重複を除く）
         const categories = [
