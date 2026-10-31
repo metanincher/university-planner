@@ -301,3 +301,94 @@ h1 {
     color: #2563eb;
 }
 
+
+/* 単位数サマリー */
+
+.credit-summary {
+    padding: 18px;
+    margin-bottom: 20px;
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.credit-summary h3 {
+    margin-top: 0;
+}
+
+.credit-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.credit-summary-card {
+    background: white;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.credit-summary-label {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.credit-summary-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.credit-summary-unit {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.credit-progress {
+    height: 14px;
+    display: flex;
+    overflow: hidden;
+    background: #e2e8f0;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.credit-progress-passed {
+    background: #16a34a;
+}
+
+.credit-progress-planned {
+    background: #3b82f6;
+}
+
+.credit-progress-remaining {
+    background: #e2e8f0;
+}
+
+.credit-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.credit-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.credit-legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+@media (max-width: 480px) {
+    .credit-summary-value {
+        font-size: 23px;
+    }
+}
