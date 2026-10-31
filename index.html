@@ -1,165 +1,129 @@
 
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>University Planner</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="container">
 
-    
     <!-- ログイン・新規登録画面 -->
     <div id="authPanel">
-    
-        <h2>ログイン</h2>
-    
+        <h2 id="authTitle">ログイン</h2>
+
         <label for="email">メールアドレス</label>
-        <input
-            type="email"
-            id="email"
-            placeholder="メールアドレス"
-        >
-    
+        <input type="email" id="email"
+               placeholder="メールアドレス"
+               autocomplete="email" required>
+
         <label for="password">パスワード</label>
-        <input
-            type="password"
-            id="password"
-            placeholder="パスワード"
-        >
-    
-        <button id="loginButton" type="button">
-            ログイン
-        </button>
-    
-        <button id="signupButton" type="button">
-            新規アカウント登録
-        </button>
-    
-        <p id="authMessage"></p>
-    
+        <input type="password" id="password"
+               placeholder="パスワード"
+               autocomplete="current-password"
+               minlength="6" required>
+
+        <button id="loginButton" type="button">ログイン</button>
+        <button id="signupButton" type="button">新規アカウント登録</button>
+
+        <p id="authMessage" role="alert"></p>
     </div>
-    
-    <!-- ログイン後に表示するアプリ本体 -->
+
+    <!-- ログイン後のアプリ本体 -->
     <div id="appContent" hidden>
 
+        <div class="app-header">
+            <div>
+                <h1>University Planner</h1>
+                <p>履修管理システム</p>
+                <p id="userEmail"></p>
+            </div>
+            <button id="logoutButton" type="button">ログアウト</button>
+        </div>
 
-    <h1>University Planner</h1>
+        <div id="status">Firebase接続確認中...</div>
 
-    <p>履修管理システム</p>
+        <h2>履修登録</h2>
+        <div class="search-form">
+            <label>年度</label>
+            <select id="academicYear">
+                <option value="">選択してください</option>
+                <option value="2026">2026年度</option>
+                <option value="2027">2027年度</option>
+                <option value="2028">2028年度</option>
+                <option value="2029">2029年度</option>
+            </select>
 
-    <!-- Firebase接続状態 -->
-    <div id="status">
-        Firebase接続確認中...
+            <label>大カテゴリ</label>
+            <select id="category1">
+                <option value="">選択してください</option>
+            </select>
+
+            <label>中カテゴリ</label>
+            <select id="category2" disabled>
+                <option value="">選択してください</option>
+            </select>
+
+            <label>科目</label>
+            <select id="subject" disabled>
+                <option value="">選択してください</option>
+            </select>
+
+            <label>学期</label>
+            <select id="semester" disabled>
+                <option value="">選択してください</option>
+            </select>
+
+            <div id="subjectInfo"></div>
+
+            <button id="registerButton" disabled>履修登録</button>
+        </div>
+
+        <hr>
+
+        <h2>履修状況</h2>
+        <div class="search-form">
+            <label>年度</label>
+            <select id="viewAcademicYear">
+                <option value="">選択してください</option>
+                <option value="2026">2026年度</option>
+                <option value="2027">2027年度</option>
+                <option value="2028">2028年度</option>
+                <option value="2029">2029年度</option>
+            </select>
+
+            <label>学期</label>
+            <select id="viewSemester">
+                <option value="">選択してください</option>
+                <option value="1">1学期</option>
+                <option value="2">2学期</option>
+                <option value="3">3学期</option>
+                <option value="4">4学期</option>
+            </select>
+
+            <button id="viewButton">表示</button>
+        </div>
+
+        <div id="enrollmentList"></div>
+
+        <hr>
+        <h2>4年間の履修計画</h2>
+        <div id="fourYearPlan">
+            <p>履修計画を読み込むと、ここに表示されます。</p>
+        </div>
+
+        <hr>
+        <h2>卒業要件チェック</h2>
+        <div id="creditSummary"></div>
+        <div id="graduationResults">
+            <p>履修データを集計すると、ここに結果が表示されます。</p>
+        </div>
+
     </div>
-
-
-    <h2>履修登録</h2>
-
-    <div class="search-form">
-    
-        <label>年度</label>
-        <select id="academicYear">
-            <option value="">選択してください</option>
-            <option value="2026">2026年度</option>
-            <option value="2027">2027年度</option>
-            <option value="2028">2028年度</option>
-            <option value="2029">2029年度</option>
-        </select>
-    
-        <label>大カテゴリ</label>
-        <select id="category1">
-            <option value="">選択してください</option>
-        </select>
-    
-        <label>中カテゴリ</label>
-        <select id="category2" disabled>
-            <option value="">選択してください</option>
-        </select>
-    
-        <label>科目</label>
-        <select id="subject" disabled>
-            <option value="">選択してください</option>
-        </select>
-    
-        <label>学期</label>
-        <select id="semester" disabled>
-            <option value="">選択してください</option>
-        </select>
-    
-        <div id="subjectInfo"></div>
-    
-        <button id="registerButton" disabled>
-            履修登録
-        </button>
-    
-    </div>
-    
-    <hr>
-    
-    <h2>履修状況</h2>
-    
-    <div class="search-form">
-    
-        <label>年度</label>
-        <select id="viewAcademicYear">
-            <option value="">選択してください</option>
-            <option value="2026">2026年度</option>
-            <option value="2027">2027年度</option>
-            <option value="2028">2028年度</option>
-            <option value="2029">2029年度</option>
-        </select>
-    
-        <label>学期</label>
-        <select id="viewSemester">
-            <option value="">選択してください</option>
-            <option value="1">1学期</option>
-            <option value="2">2学期</option>
-            <option value="3">3学期</option>
-            <option value="4">4学期</option>
-        </select>
-    
-        <button id="viewButton">
-            表示
-        </button>
-    
-    </div>
-
-    <div id="enrollmentList"></div>
-
-    <hr>
-    
-    <h2>4年間の履修計画</h2>
-    
-    <div id="fourYearPlan">
-        <p>履修計画を読み込むと、ここに表示されます。</p>
-    </div>
-    
-    <hr>
-    
-    <h2>卒業要件チェック</h2>
-
-    <div id="creditSummary"></div>
-
-    <div id="graduationResults">
-    
-        <p>履修データを集計すると、ここに結果が表示されます。</p>
-    
-    </div>
-
-    
 </div>
-</div>
-    
+
 <script type="module" src="app.js"></script>
-
 </body>
-
 </html>
