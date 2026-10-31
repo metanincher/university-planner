@@ -60,6 +60,9 @@ const enrollmentList =
 const graduationResults =
     document.getElementById("graduationResults");
 
+const fourYearPlan =
+    document.getElementById("fourYearPlan");
+
 // プルダウン初期化用関数
 function resetSelect(select, disabled = true) {
     select.innerHTML =
@@ -71,7 +74,7 @@ function resetSelect(select, disabled = true) {
 // 初期処理
 async function init() {
 
-    console.log("init 7");
+    console.log("init 8");
     
     try {
 
@@ -547,6 +550,7 @@ viewButton.addEventListener("click", async () => {
     }
     
     await calculateGraduationRequirements();
+    await displayFourYearPlan();
     
 });
 
@@ -857,4 +861,169 @@ async function calculateGraduationRequirements() {
 
 }
 
+
+// 4年間の履修計画を表示
+async function displayFourYearPlan() {
+
+    fourYearPlan.textContent = "読み込み中...";
+
+    try {
+
+        // 全履修データを取得
+        const snapshot = await getDocs(
+            collection(
+                db,
+                "users",
+                "testUser001",
+                "enrollments"
+            )
+        );
+
+        const enrollments = snapshot.docs.map(d => d.data());
+
+        fourYearPlan.replaceChildren();
+
+        let grandTotal = 0;
+
+        // 2026～2029年度
+        for (let year = 2026; year <= 2029; year++) {
+
+            const yearDiv = document.createElement("div");
+            yearDiv.className = "year-plan";
+
+            const yearTitle = document.createElement("h3");
+            yearTitle.textContent = year + "年度";
+
+            const yearTotal = document.createElement("p");
+            yearTotal.className = "year-plan-total";
+
+            let yearCredits = 0;
+
+            // 1～4学期
+            for (let semester = 1; semester <= 4; semester++) {
+
+                const semesterDiv =
+                    document.createElement("div");
+
+                semesterDiv.className = "semester-plan";
+
+                const semesterTitle =
+                    document.createElement("h4");
+
+                semesterTitle.textContent =
+                    semester + "学期";
+
+                // 該当する履修データを取得
+                const filtered = enrollments.filter(e =>
+                    Number(e.academicYear) === year &&
+                    Number(e.semester) === semester
+                );
+
+                const subjectContainer =
+                    document.createElement("div");
+
+                let semesterCredits = 0;
+
+                if (filtered.length === 0) {
+
+                    const empty =
+                        document.createElement("p");
+
+                    empty.className = "semester-empty";
+
+                    empty.textContent = "履修科目はありません";
+
+                    subjectContainer.appendChild(empty);
+
+                } else {
+
+                    filtered.forEach(enrollment => {
+
+                        const subject = subjects.find(s =>
+                            s.id === enrollment.subjectId
+                        );
+
+                        if (!subject) return;
+
+                        const item =
+                            document.createElement("div");
+
+                        item.className = "semester-subject";
+
+                        item.textContent =
+                            `${subject.name}（${subject.credits}単位）`;
+
+                        subjectContainer.appendChild(item);
+
+                        const credits =
+                            Number(subject.credits || 0);
+
+                        semesterCredits += credits;
+
+                    });
+
+                }
+
+                yearCredits += semesterCredits;
+
+                const semesterTotal =
+                    document.createElement("p");
+
+                semesterTotal.className = "year-plan-total";
+
+                semesterTotal.textContent =
+                    "履修予定：" + semesterCredits + "単位";
+
+                semesterDiv.append(
+                    semesterTitle,
+                    subjectContainer,
+                    semesterTotal
+                );
+
+                yearDiv.appendChild(semesterDiv);
+
+            }
+
+            yearTotal.textContent =
+                "年間合計：" + yearCredits + "単位";
+
+            grandTotal += yearCredits;
+
+            yearDiv.insertBefore(yearTitle, yearDiv.firstChild);
+
+            yearDiv.appendChild(yearTotal);
+
+            fourYearPlan.appendChild(yearDiv);
+
+        }
+
+        // 4年間の合計
+        const totalDiv = document.createElement("div");
+
+        totalDiv.className = "four-year-total";
+
+        const totalTitle = document.createElement("p");
+
+        totalTitle.textContent = "4年間の履修予定合計";
+
+        const totalValue = document.createElement("strong");
+
+        totalValue.textContent = grandTotal + "単位";
+
+        totalDiv.append(totalTitle, totalValue);
+
+        fourYearPlan.appendChild(totalDiv);
+
+        console.log("4年間の履修計画を表示しました。");
+
+    } catch (error) {
+
+        console.error("4年間の履修計画エラー:", error);
+
+        fourYearPlan.textContent =
+            "読み込みエラー：" + error.message;
+
+    }
+
+}
 
