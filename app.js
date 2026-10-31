@@ -8,7 +8,10 @@ import {
     getDocs,
     addDoc,
     query,
-    where
+    where,
+    updateDoc,
+    deleteDoc,
+    doc
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 
@@ -321,21 +324,16 @@ registerButton.addEventListener("click", async () => {
 
 // 履修状況表示ボタン
 viewButton.addEventListener("click", async () => {
-    
-    console.log("Viewボタン押下");
-    
+
     const academicYear = Number(viewYearSelect.value);
     const semester = Number(viewSemesterSelect.value);
 
-    // 入力チェック
     if (!viewYearSelect.value || !viewSemesterSelect.value) {
         alert("年度と学期を選択してください。");
         return;
     }
 
-    // 表示領域を初期化
     enrollmentList.replaceChildren();
-
     enrollmentList.textContent = "読み込み中...";
 
     try {
@@ -356,21 +354,17 @@ viewButton.addEventListener("click", async () => {
 
         enrollmentList.replaceChildren();
 
-        // 該当データがない場合
         if (snapshot.empty) {
-
             enrollmentList.textContent =
                 "該当する履修科目はありません。";
-
             return;
         }
 
-        // 履修データを順番に表示
+        // 履修データを表示
         snapshot.forEach(enrollmentDoc => {
 
             const enrollment = enrollmentDoc.data();
 
-            // 科目マスターから科目情報を取得
             const subject = subjects.find(
                 s => s.id === enrollment.subjectId
             );
@@ -378,30 +372,144 @@ viewButton.addEventListener("click", async () => {
             const div = document.createElement("div");
             div.className = "enrollment-item";
 
+            // 科目名
             const name = document.createElement("h3");
-
             name.textContent = subject
                 ? subject.name
                 : "科目情報が見つかりません";
 
+            // カテゴリ
             const category = document.createElement("p");
-
             category.textContent = subject
                 ? subject.category1 + " / " + subject.category2
                 : "";
 
+            // 単位数
             const credits = document.createElement("p");
-
             credits.textContent = subject
                 ? "単位数：" + subject.credits
                 : "";
 
-            const result = document.createElement("p");
+            // 成績選択欄
+            const resultLabel = document.createElement("label");
+            resultLabel.textContent = "成績：";
 
-            result.textContent =
-                "成績：" + enrollment.examResult;
+            const resultSelect = document.createElement("select");
 
-            div.append(name, category, credits, result);
+            const results = ["未受験", "合格", "不合格"];
+
+            results.forEach(result => {
+
+                const option = document.createElement("option");
+                option.value = result;
+                option.textContent = result;
+
+                resultSelect.appendChild(option);
+
+            });
+
+            resultSelect.value = enrollment.examResult || "未受験";
+
+            // 成績変更時にFirestoreを更新
+            resultSelect.addEventListener("change", async () => {
+
+                const newResult = resultSelect.value;
+
+                resultSelect.disabled = true;
+
+                try {
+
+                    await updateDoc(
+                        doc(
+                            db,
+                            "users",
+                            "testUser001",
+                            "enrollments",
+                            enrollmentDoc.id
+                        ),
+                        {
+                            examResult: newResult
+                        }
+                    );
+
+                    enrollment.examResult = newResult;
+
+                    console.log("成績を更新しました:", newResult);
+
+                } catch (error) {
+
+                    console.error("成績更新エラー:", error);
+
+                    alert("成績の更新に失敗しました。");
+
+                    // 変更前の値に戻す
+                    resultSelect.value =
+                        enrollment.examResult || "未受験";
+
+                } finally {
+
+                    resultSelect.disabled = false;
+
+                }
+
+            });
+
+            // 削除ボタン
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "削除";
+            deleteButton.className = "delete-button";
+
+            deleteButton.addEventListener("click", async () => {
+
+                if (!confirm("この履修科目を削除しますか？")) {
+                    return;
+                }
+
+                deleteButton.disabled = true;
+
+                try {
+
+                    await deleteDoc(
+                        doc(
+                            db,
+                            "users",
+                            "testUser001",
+                            "enrollments",
+                            enrollmentDoc.id
+                        )
+                    );
+
+                    // 画面からも削除
+                    div.remove();
+
+                    console.log("履修データを削除しました");
+
+                    if (enrollmentList.children.length === 0) {
+                        enrollmentList.textContent =
+                            "該当する履修科目はありません。";
+                    }
+
+                } catch (error) {
+
+                    console.error("削除エラー:", error);
+
+                    alert("削除に失敗しました。");
+
+                    deleteButton.disabled = false;
+
+                }
+
+            });
+
+            // 画面に配置
+            div.append(
+                name,
+                category,
+                credits,
+                resultLabel,
+                resultSelect,
+                deleteButton
+            );
 
             enrollmentList.appendChild(div);
 
@@ -417,5 +525,3 @@ viewButton.addEventListener("click", async () => {
     }
 
 });
-
-
