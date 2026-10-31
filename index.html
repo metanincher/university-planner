@@ -15,6 +15,42 @@
 
 <div class="container">
 
+    
+    <!-- ログイン・新規登録画面 -->
+    <div id="authPanel">
+    
+        <h2>ログイン</h2>
+    
+        <label for="email">メールアドレス</label>
+        <input
+            type="email"
+            id="email"
+            placeholder="メールアドレス"
+        >
+    
+        <label for="password">パスワード</label>
+        <input
+            type="password"
+            id="password"
+            placeholder="パスワード"
+        >
+    
+        <button id="loginButton" type="button">
+            ログイン
+        </button>
+    
+        <button id="signupButton" type="button">
+            新規アカウント登録
+        </button>
+    
+        <p id="authMessage"></p>
+    
+    </div>
+    
+    <!-- ログイン後に表示するアプリ本体 -->
+    <div id="appContent" hidden>
+
+
     <h1>University Planner</h1>
 
     <p>履修管理システム</p>
@@ -120,7 +156,8 @@
 
     
 </div>
-
+</div>
+    
 <script type="module" src="app.js"></script>
 
 </body>
