@@ -143,3 +143,32 @@ h1 {
     cursor: not-allowed;
 }
 
+
+#graduationResults {
+    margin-top: 20px;
+}
+
+.graduation-item {
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.graduation-item h3 {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+}
+
+.graduation-item p {
+    margin: 0;
+    color: #334155;
+}
+
+.graduation-total {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
