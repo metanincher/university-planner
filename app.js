@@ -529,12 +529,7 @@ registerButton.addEventListener("click", async () => {
 
     try {
 
-        const enrollmentsRef = collection(
-            db,
-            "users",
-            "testUser001",
-            "enrollments"
-        );
+        const enrollmentsRef = enrollmentCollectionRef();
 
         // 同じ科目がすでに登録されていないか確認
         const q = query(
@@ -608,12 +603,7 @@ viewButton.addEventListener("click", async () => {
 
         // Firestoreから履修データを取得
         const q = query(
-            collection(
-                db,
-                "users",
-                "testUser001",
-                "enrollments"
-            ),
+            enrollmentCollectionRef(),
             where("academicYear", "==", academicYear),
             where("semester", "==", semester)
         );
@@ -688,13 +678,7 @@ viewButton.addEventListener("click", async () => {
                 try {
 
                     await updateDoc(
-                        doc(
-                            db,
-                            "users",
-                            "testUser001",
-                            "enrollments",
-                            enrollmentDoc.id
-                        ),
+                        enrollmentDocRef(enrollmentDoc.id),
                         {
                             examResult: newResult
                         }
@@ -738,13 +722,7 @@ viewButton.addEventListener("click", async () => {
                 try {
 
                     await deleteDoc(
-                        doc(
-                            db,
-                            "users",
-                            "testUser001",
-                            "enrollments",
-                            enrollmentDoc.id
-                        )
+                        enrollmentDocRef(enrollmentDoc.id)
                     );
 
                     // 画面からも削除
@@ -809,12 +787,7 @@ async function calculateGraduationRequirements() {
 
         // 全履修データを取得
         const snapshot = await getDocs(
-            collection(
-                db,
-                "users",
-                "testUser001",
-                "enrollments"
-            )
+            enrollmentCollectionRef()
         );
 
         const enrollments = snapshot.docs.map(d => d.data());
@@ -1205,12 +1178,7 @@ async function displayFourYearPlan() {
 
         // 全履修データを取得
         const snapshot = await getDocs(
-            collection(
-                db,
-                "users",
-                "testUser001",
-                "enrollments"
-            )
+            enrollmentCollectionRef()
         );
 
         const enrollments = snapshot.docs.map(d => d.data());
@@ -1371,12 +1339,7 @@ async function calculateCreditSummary() {
 
         // 全履修データを取得
         const snapshot = await getDocs(
-            collection(
-                db,
-                "users",
-                "testUser001",
-                "enrollments"
-            )
+            enrollmentCollectionRef()
         );
 
         const enrollments = snapshot.docs.map(d => d.data());
