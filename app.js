@@ -69,6 +69,8 @@ function resetSelect(select, disabled = true) {
 // 初期処理
 async function init() {
 
+    console.log("init 1");
+    
     try {
 
         const snapshot = await getDocs(
