@@ -79,9 +79,29 @@ export function initSheep() {
     	const box = new THREE.Box3().setFromObject(sheep);
     	const size = box.getSize(new THREE.Vector3());
     	const center = box.getCenter(new THREE.Vector3());
-
+		
     	console.log("羊のサイズ:", size);
     	console.log("羊の中心:", center);
+	
+		// 羊の高さに合わせてカメラ位置を調整
+		const maxDim = Math.max(size.x, size.y, size.z);
+		
+		const fov = camera.fov * (Math.PI / 180);
+		
+		let cameraDistance =
+		    maxDim / (2 * Math.tan(fov / 2));
+		
+		cameraDistance *= 1.5;
+		
+		camera.position.set(
+		    center.x,
+		    center.y + maxDim * 0.15,
+		    center.z + cameraDistance
+		);
+		
+		camera.lookAt(center);
+
+
 
     	scene.add(sheep);
 
