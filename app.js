@@ -241,8 +241,10 @@ onAuthStateChanged(auth, async (user) => {
 
         userEmail.textContent = user.email || "";
 
-        document.getElementById("status").textContent =
-            "ログインしました。科目データを読み込んでいます...";
+        if(DEBUG_MODE){
+            document.getElementById("status").textContent =
+                "ログインしました。科目データを読み込んでいます...";
+        }
 
 
         try {
