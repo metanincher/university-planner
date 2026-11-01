@@ -1293,7 +1293,7 @@ async function displayFourYearPlan() {
                         item.className = "semester-subject";
 
                         item.textContent =
-                            `${subject.name}（${subject.credits}単位）`;
+                            `${subject.name}（${subject.required_type}・${subject.credits}単位）`;
 
                         subjectContainer.appendChild(item);
 
