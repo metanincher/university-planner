@@ -246,7 +246,7 @@ onAuthStateChanged(auth, async (user) => {
             await setupUserAccess(user);
         
             // ② 編集機能の制御
-            registerButton.disabled = isReadOnly;
+            checkRegisterButton();
         
             // ③ 科目データを読み込む
             await init();
@@ -378,6 +378,13 @@ function checkRegisterButton() {
 
     if (!registerButton) return;
 
+    // 保護者は常に登録不可
+    if (isReadOnly) {
+        registerButton.disabled = true;
+        return;
+    }
+
+    // 本人の場合は入力状況で判定
     registerButton.disabled = !(
         yearSelect.value &&
         subjectSelect.value &&
@@ -385,7 +392,6 @@ function checkRegisterButton() {
     );
 
 }
-
 
 // 大カテゴリ変更時
 category1Select.addEventListener("change", () => {
@@ -526,6 +532,12 @@ if (semesterSelect) {
 // 履修登録ボタン
 registerButton.addEventListener("click", async () => {
 
+    // 保護者の場合は登録処理を実行しない
+    if (isReadOnly) {
+        alert("保護者アカウントでは履修登録できません。");
+        return;
+    }
+    
     const academicYear = Number(yearSelect.value);
     const subjectId = subjectSelect.value;
     const semester = Number(semesterSelect.value);
@@ -714,7 +726,9 @@ viewButton.addEventListener("click", async () => {
 
                 } finally {
 
-                    resultSelect.disabled = false;
+                    //resultSelect.disabled = false;
+                    // 保護者は常に変更不可
+                    resultSelect.disabled = isReadOnly;
 
                 }
 
