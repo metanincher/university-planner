@@ -60,63 +60,61 @@ export function initSheep() {
     // GLB読み込み
     const loader = new GLTFLoader();
 
-//	loader.load("./models/sheep.glb", (gltf) => {
-//
-//    	const sheep = gltf.scene;
-//
-//    	// モデルの大きさを確認
-//    	const box = new THREE.Box3().setFromObject(sheep);
-//    	const size = box.getSize(new THREE.Vector3());
-//    	const center = box.getCenter(new THREE.Vector3());
-//
-//    	console.log("羊のサイズ:", size);
-//    	console.log("羊の中心:", center);
-//
-//    	scene.add(sheep);
-//
-//    	const mixer = new THREE.AnimationMixer(sheep);
-//
-//    	if (gltf.animations.length > 0) {
-//    	    const action = mixer.clipAction(gltf.animations[0]);
-//    	    action.play();
-//    	}
-//
-//	});
+	loader.load("./models/sheep.glb", (gltf) => {
+
+    	const sheep = gltf.scene;
+
+    	// モデルの大きさを確認
+    	const box = new THREE.Box3().setFromObject(sheep);
+    	const size = box.getSize(new THREE.Vector3());
+    	const center = box.getCenter(new THREE.Vector3());
+
+    	console.log("羊のサイズ:", size);
+    	console.log("羊の中心:", center);
+
+    	scene.add(sheep);
+
+    	if (gltf.animations.length > 0) {
+
+    		mixer = new THREE.AnimationMixer(sheep);
+
+    	    const action = mixer.clipAction(gltf.animations[0]);
+
+    	    action.play();
+
+    	}
+
+	});
 
 
-    loader.load(
-        "./models/sheep.glb",
+ //   loader.load( "./models/sheep.glb", (gltf) => {
 
-        (gltf) => {
+ //           const sheep = gltf.scene;
 
-            const sheep = gltf.scene;
+ //           scene.add(sheep);
 
-            scene.add(sheep);
+ //           console.log("羊を読み込みました！");
+ //           console.log("アニメーション:", gltf.animations);
 
-            console.log("羊を読み込みました！");
-            console.log("アニメーション:", gltf.animations);
+ //           // アニメーション再生
+ //           if (gltf.animations.length > 0) {
 
-            // アニメーション再生
-            if (gltf.animations.length > 0) {
+ //               mixer = new THREE.AnimationMixer(sheep);
 
-                mixer = new THREE.AnimationMixer(sheep);
+ //               const action = mixer.clipAction( gltf.animations[0]);
 
-                const action = mixer.clipAction(
-                    gltf.animations[0]
-                );
+ //               action.play();
 
-                action.play();
+ //           }
 
-            }
+ //       },
 
-        },
+ //       undefined,
 
-        undefined,
-
-        (error) => {
-            console.error("羊の読み込みエラー:", error);
-        }
-    );
+ //       (error) => {
+ //           console.error("羊の読み込みエラー:", error);
+ //       }
+ //   );
 
     // アニメーション更新
     const clock = new THREE.Clock();
