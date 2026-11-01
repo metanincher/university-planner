@@ -666,6 +666,12 @@ viewButton.addEventListener("click", async () => {
             category.textContent = subject
                 ? subject.category1 + " / " + subject.category2
                 : "";
+            
+                // 科目区分（必修・選択必修・選択）
+            const requiredType = document.createElement("p");
+            requiredType.textContent = subject
+                ? "科目区分：" + subject.required_type
+                : "";
 
             // 単位数
             const credits = document.createElement("p");
@@ -784,6 +790,7 @@ viewButton.addEventListener("click", async () => {
             div.append(
                 name,
                 category,
+                requiredType,
                 credits,
                 resultLabel,
                 resultSelect,
