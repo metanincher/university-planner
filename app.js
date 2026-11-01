@@ -459,7 +459,8 @@ category2Select.addEventListener("change", () => {
 
         const option = document.createElement("option");
         option.value = subject.id;
-        option.textContent = subject.name;
+        option.textContent =
+        `${subject.name}（${subject.required_type}）`;
 
         subjectSelect.appendChild(option);
 
