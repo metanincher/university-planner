@@ -260,7 +260,7 @@ onAuthStateChanged(auth, async (user) => {
             // ③ 科目データを読み込む
             await init();
             
-            //initSheep();
+            initSheep();
         
         } catch (error) {
 

@@ -1,9 +1,9 @@
 
-import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from "three";
 
 import { GLTFLoader } from
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+    "three/addons/loaders/GLTFLoader.js";
+
 
 const container = document.getElementById("sheep-stage");
 
