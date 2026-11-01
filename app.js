@@ -241,10 +241,10 @@ onAuthStateChanged(auth, async (user) => {
 
         userEmail.textContent = user.email || "";
 
-        if(DEBUG_MODE){
+        //if(DEBUG_MODE){
             document.getElementById("status").textContent =
                 "ログインしました。科目データを読み込んでいます...";
-        }
+        //}
 
 
         try {
@@ -368,6 +368,9 @@ async function init() {
         if (DEBUG_MODE) {
             document.getElementById("status").textContent =
                 "科目データを読み込みました！";
+        }else{
+            document.getElementById("status").textContent =
+                "";
         }
 
     } catch (error) {
