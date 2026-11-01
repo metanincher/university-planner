@@ -3,6 +3,9 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 
 // VSCodiumからの編集テスト
+//
+// デバッグモード
+const DEBUG_MODE = false;
 
 import {
     getFirestore,
@@ -360,8 +363,10 @@ async function init() {
 
         });
 
-        document.getElementById("status").textContent =
-            "科目データを読み込みました！";
+        if (DEBUG_MODE) {
+            document.getElementById("status").textContent =
+                "科目データを読み込みました！";
+        }
 
     } catch (error) {
 
