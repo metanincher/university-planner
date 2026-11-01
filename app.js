@@ -41,7 +41,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // 息子のUID
-const STUDENT_UID = "ここに息子のUID";
+const STUDENT_UID = "Z0TcNRMCLLetvD2yTiVDQMqgnSo2";
 
 // 現在のログイン状態
 let currentUser = null;
@@ -51,6 +51,50 @@ let targetUserId = null;
 
 // 閲覧専用モード
 let isReadOnly = false;
+
+// 履修データの閲覧対象を決定する
+async function setupUserAccess(user) {
+
+    // 息子本人がログインした場合
+    if (user.uid === STUDENT_UID) {
+
+        targetUserId = user.uid;
+        isReadOnly = false;
+
+        console.log("本人ログイン：編集可能");
+
+        return;
+    }
+
+    // 母親がログインした場合
+    const permissionRef = doc(
+        db,
+        "users",
+        STUDENT_UID,
+        "settings",
+        "permissions"
+    );
+
+    const permissionSnap = await getDoc(permissionRef);
+
+    if (!permissionSnap.exists()) {
+        throw new Error("閲覧権限の設定が見つかりません。");
+    }
+
+    const permissions = permissionSnap.data();
+
+    const parentUids = permissions.parentUids || [];
+
+    // 母親のUIDが登録されているか確認
+    if (!parentUids.includes(user.uid)) {
+        throw new Error("この学生の履修データを閲覧する権限がありません。");
+    }
+
+    targetUserId = STUDENT_UID;
+    isReadOnly = true;
+
+    console.log("保護者ログイン：閲覧専用");
+}
 
 // 科目データを保存する配列
 let subjects = [];
@@ -195,10 +239,18 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById("status").textContent =
             "ログインしました。科目データを読み込んでいます...";
 
+
         try {
 
+            // ① ログインユーザーに応じて閲覧対象を決定
+            await setupUserAccess(user);
+        
+            // ② 編集機能の制御
+            registerButton.disabled = isReadOnly;
+        
+            // ③ 科目データを読み込む
             await init();
-
+        
         } catch (error) {
 
             console.error("初期化エラー:", error);
@@ -224,6 +276,9 @@ onAuthStateChanged(auth, async (user) => {
         enrollmentList.replaceChildren();
         creditSummary.replaceChildren();
         graduationResults.replaceChildren();
+
+        targetUserId = null;
+        isReadOnly = false;
 
         fourYearPlan.replaceChildren();
 
@@ -622,6 +677,8 @@ viewButton.addEventListener("click", async () => {
             });
 
             resultSelect.value = enrollment.examResult || "未受験";
+            // 保護者の場合は変更不可
+            resultSelect.disabled = isReadOnly;
 
             // 成績変更時にFirestoreを更新
             resultSelect.addEventListener("change", async () => {
@@ -652,6 +709,8 @@ viewButton.addEventListener("click", async () => {
                     // 変更前の値に戻す
                     resultSelect.value =
                         enrollment.examResult || "未受験";
+                    //// 保護者の場合は変更不可
+                    //resultSelect.disabled = isReadOnly;　//→確認要
 
                 } finally {
 
@@ -665,6 +724,8 @@ viewButton.addEventListener("click", async () => {
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "削除";
             deleteButton.className = "delete-button";
+            // 保護者には削除ボタンを表示しない
+            deleteButton.hidden = isReadOnly;
 
             deleteButton.addEventListener("click", async () => {
 
