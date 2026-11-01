@@ -91,18 +91,20 @@ export function initSheep() {
 		let cameraDistance =
 		    maxDim / (2 * Math.tan(fov / 2));
 		
-		cameraDistance *= 1.5;
+		cameraDistance *= 2.2;
 		
 		camera.position.set(
 		    center.x,
-		    center.y + maxDim * 0.15,
+		    center.y + maxDim * 0.05,
 		    center.z + cameraDistance
 		);
+
+		camera.lookAt(
+		    center.x,
+		    center.y + maxDim * 0.1,
+		    center.z
+		);
 		
-		camera.lookAt(center);
-
-
-
     	scene.add(sheep);
 
     	if (gltf.animations.length > 0) {
