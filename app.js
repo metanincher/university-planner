@@ -2,6 +2,8 @@
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 
+// VSCodiumからの編集テスト
+
 import {
     getFirestore,
     collection,
