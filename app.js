@@ -6,6 +6,7 @@ import {
     getFirestore,
     collection,
     getDocs,
+    getDoc,
     addDoc,
     query,
     where,
@@ -39,8 +40,17 @@ const db = getFirestore(app);
 
 const auth = getAuth(app);
 
-// ログイン中のユーザー
+// 息子のUID
+const STUDENT_UID = "ここに息子のUID";
+
+// 現在のログイン状態
 let currentUser = null;
+
+// 履修データの閲覧対象
+let targetUserId = null;
+
+// 閲覧専用モード
+let isReadOnly = false;
 
 // 科目データを保存する配列
 let subjects = [];
@@ -60,31 +70,29 @@ const authMessage = document.getElementById("authMessage");
 const userEmail = document.getElementById("userEmail");
 
 
-// 現在のユーザー専用の履修データ保存先
 function enrollmentCollectionRef() {
-    if (!currentUser) {
-        throw new Error("ログインしてください。");
+    if (!targetUserId) {
+        throw new Error("閲覧対象の学生が設定されていません。");
     }
 
     return collection(
         db,
         "users",
-        currentUser.uid,
+        targetUserId,
         "enrollments"
     );
 }
 
-
 // 現在のユーザー専用の履修データ参照先
 function enrollmentDocRef(enrollmentId) {
-    if (!currentUser) {
-        throw new Error("ログインしてください。");
+    if (!targetUserId) {
+        throw new Error("閲覧対象の学生が設定されていません。");
     }
 
     return doc(
         db,
         "users",
-        currentUser.uid,
+        targetUserId,
         "enrollments",
         enrollmentId
     );
