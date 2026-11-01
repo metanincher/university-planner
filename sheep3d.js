@@ -12,8 +12,18 @@ let renderer;
 let camera;
 let scene;
 
+let initialized = false;
+
 export function initSheep() {
 
+	    // 初期化済みなら何もしない
+    if (initialized) {
+        console.log("羊は初期化済みです");
+        return;
+    }
+
+    initialized = true;
+	
     scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(
