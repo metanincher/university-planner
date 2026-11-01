@@ -1,7 +1,9 @@
 
+
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 
+import { initSheep } from "./sheep3d.js";
 // VSCodiumからの編集テスト
 //
 // デバッグモード
@@ -257,6 +259,8 @@ onAuthStateChanged(auth, async (user) => {
         
             // ③ 科目データを読み込む
             await init();
+            
+            initSheep();
         
         } catch (error) {
 
