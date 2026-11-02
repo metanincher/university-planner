@@ -36,19 +36,6 @@ export function initSheep() {
 	camera.position.set(0, 4, 12);
 	camera.lookAt(0, 1, 0);
 
-
-    //camera = new THREE.PerspectiveCamera(
-    //    35,
-    //    container.clientWidth / container.clientHeight,
-    //    0.1,
-    //    100
-    //);
-
-	//camera.position.set(0, 3, 10);
-	//camera.lookAt(0, 1.5, 0);
-    //camera.position.set(0, 2, 7);
-    //camera.lookAt(0, 1, 0);
-
     renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true
