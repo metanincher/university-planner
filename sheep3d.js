@@ -150,7 +150,7 @@ export function initSheep() {
                 gltf.animations[0]
             );
     
-            //action.play();
+            action.play();
         }
     
     });
