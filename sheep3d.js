@@ -81,10 +81,10 @@ export function initSheep() {
     loader.load("./models/sheep.glb", (gltf) => {
 
         // ★ sheepをグローバルスコープの変数に格納
-        sheep = gltf.scene;
+        const model = gltf.scene;
 
         // モデルの大きさを確認
-        const box = new THREE.Box3().setFromObject(sheep);
+        const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
 
@@ -95,10 +95,12 @@ export function initSheep() {
         // 回転軸を羊の中心にするため
         const pivot = new THREE.Group();
 
-        sheep.position.sub(center);
+        // モデルを中心位置に移動
+        model.position.sub(center);
+        // pivotにモデルを格納
+        pivot.add(model);
+        // pivotを元の中心位置に配置
         pivot.position.copy(center);
-
-        pivot.add(sheep);
 
         // 回転操作用のオブジェクト
         scene.add(pivot);
@@ -131,7 +133,8 @@ export function initSheep() {
         // ダンスアニメーション
         if (gltf.animations.length > 0) {
 
-            mixer = new THREE.AnimationMixer(sheep.children[0]);
+            //mixer = new THREE.AnimationMixer(sheep.children[0]);
+            mixer = new THREE.AnimationMixer(model);
 
             const action = mixer.clipAction(
                 gltf.animations[0]
