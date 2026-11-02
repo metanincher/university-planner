@@ -764,3 +764,12 @@ button:disabled {
     font-size: 14px;
     pointer-events: none;
 }
+
+#sheep-stage canvas {
+    cursor: grab;
+    touch-action: none;
+}
+
+#sheep-stage canvas:active {
+    cursor: grabbing;
+}
