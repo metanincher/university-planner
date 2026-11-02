@@ -77,83 +77,69 @@ export function initSheep() {
 
     // GLB読み込み
     const loader = new GLTFLoader();
-    
-    
+
     loader.load("./models/sheep.glb", (gltf) => {
-    
-        const model = gltf.scene;
-    
-        // モデルのワールド座標行列を更新
-        model.updateMatrixWorld(true);
-    
-        // モデル全体のBounding Boxを取得
-        const box = new THREE.Box3().setFromObject(model);
-    
+
+        // ★ sheepをグローバルスコープの変数に格納
+        sheep = gltf.scene;
+
+        // モデルの大きさを確認
+        const box = new THREE.Box3().setFromObject(sheep);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
-    
+
         console.log("羊のサイズ:", size);
         console.log("羊の中心:", center);
-    
-        // 回転専用グループ
-        const rotationGroup = new THREE.Group();
-    
-        // モデル位置調整専用グループ
-        const offsetGroup = new THREE.Group();
-    
-        // モデルの中心を原点に合わせる
-        offsetGroup.position.copy(center).negate();
-    
-        // グループを階層化
-        rotationGroup.add(offsetGroup);
-        offsetGroup.add(model);
-    
-        // 回転軸を元の中心位置に配置
-        rotationGroup.position.copy(center);
-    
-        // シーンに追加
-        scene.add(rotationGroup);
-    
-        // ドラッグ操作対象
-        sheep = rotationGroup;
-    
-    
+
+        // ★ モデルの中心を原点に移動する
+        // 回転軸を羊の中心にするため
+        const pivot = new THREE.Group();
+
+        sheep.position.sub(center);
+        pivot.position.copy(center);
+
+        pivot.add(sheep);
+
+        // 回転操作用のオブジェクト
+        scene.add(pivot);
+
+        // pivotを羊の操作対象にする
+        sheep = pivot;
+
         // カメラ位置調整
         const maxDim = Math.max(size.x, size.y, size.z);
-    
+
         const fov = camera.fov * (Math.PI / 180);
-    
+
         let cameraDistance =
             maxDim / (2 * Math.tan(fov / 2));
-    
-        //cameraDistance *= 1.4;
-        cameraDistance *= 1.1;
-    
+
+        cameraDistance *= 1.4;
+
         camera.position.set(
             center.x,
             center.y + maxDim * 0.475,
             center.z + cameraDistance
         );
-    
+
         camera.lookAt(
             center.x,
             center.y + maxDim * 0.475,
             center.z
         );
-    
-    
+
         // ダンスアニメーション
         if (gltf.animations.length > 0) {
-    
-            mixer = new THREE.AnimationMixer(model);
-    
+
+            mixer = new THREE.AnimationMixer(sheep.children[0]);
+
             const action = mixer.clipAction(
                 gltf.animations[0]
             );
-    
+
             action.play();
         }
-    
+
     });
 
 
