@@ -116,7 +116,8 @@ export function initSheep() {
             maxDim / (2 * Math.tan(fov / 2));
 
         //cameraDistance *= 1.4;
-        cameraDistance *= 1.1;
+        //cameraDistance *= 1.1;   // for only sheep
+        cameraDistance *= 0.1;   // for only sheep
 
         camera.position.set(
             center.x,
