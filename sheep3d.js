@@ -123,7 +123,7 @@ export function initSheep() {
             //center.x,
             //center.y + maxDim * 0.475,
             center.x + 30.0,
-            center.y - maxDim * 0.18,
+            center.y - maxDim * 0.19,
             center.z + cameraDistance
         );
 
@@ -131,7 +131,7 @@ export function initSheep() {
             //center.x,
             //center.y + maxDim * 0.475,
             center.x + 10.0,
-            center.y - maxDim * 0.18,
+            center.y - maxDim * 0.19,
             center.z
         );
 
