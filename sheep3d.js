@@ -122,7 +122,7 @@ export function initSheep() {
         camera.position.set(
             //center.x,
             //center.y + maxDim * 0.475,
-            center.x + 50.0,
+            center.x + 30.0,
             center.y - maxDim * 0.2,
             center.z + cameraDistance
         );
@@ -130,7 +130,7 @@ export function initSheep() {
         camera.lookAt(
             //center.x,
             //center.y + maxDim * 0.475,
-            center.x + 50.0,
+            center.x + 30.0,
             center.y - maxDim * 0.2,
             center.z
         );
