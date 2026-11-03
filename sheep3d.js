@@ -122,7 +122,7 @@ export function initSheep() {
         camera.position.set(
             center.x,
             //center.y + maxDim * 0.475,
-            center.y - maxDim * 0.2,
+            center.y - maxDim * 0.15,
             center.z + cameraDistance
         );
 
