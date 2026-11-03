@@ -131,7 +131,7 @@ export function initSheep() {
             //center.x,
             //center.y + maxDim * 0.475,
             center.x + 25.0,
-            center.y - maxDim * 0.15,
+            center.y - maxDim * 0.18,
             center.z
         );
 
