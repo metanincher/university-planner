@@ -78,7 +78,8 @@ export function initSheep() {
     // GLB読み込み
     const loader = new GLTFLoader();
 
-    loader.load("./models/sheep.glb", (gltf) => {
+    //loader.load("./models/sheep.glb", (gltf) => {
+    loader.load("./models/sheep_with_back.glb", (gltf) => {
 
         // ★ sheepをグローバルスコープの変数に格納
         sheep = gltf.scene;
