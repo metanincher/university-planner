@@ -136,13 +136,14 @@ export function initSheep() {
         // ダンスアニメーション
         if (gltf.animations.length > 0) {
 
-            mixer = new THREE.AnimationMixer(sheep.children[0]);
+            //mixer = new THREE.AnimationMixer(sheep.children[0]);
+            //const action = mixer.clipAction( gltf.animations[0]);
+            //action.play();
+            
+            animations.forEach(clip => {
+              mixer.clipAction(clip).play();
+            })
 
-            const action = mixer.clipAction(
-                gltf.animations[0]
-            );
-
-            action.play();
         }
 
     });
