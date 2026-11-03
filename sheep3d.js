@@ -117,17 +117,19 @@ export function initSheep() {
 
         //cameraDistance *= 1.4;
         //cameraDistance *= 1.1;   // for only sheep
-        cameraDistance *= 0.1;   // for only sheep
+        cameraDistance *= 0.8;   // for only sheep
 
         camera.position.set(
             center.x,
-            center.y + maxDim * 0.475,
+            //center.y + maxDim * 0.475,
+            center.y + maxDim * 0.4,
             center.z + cameraDistance
         );
 
         camera.lookAt(
             center.x,
-            center.y + maxDim * 0.475,
+            //center.y + maxDim * 0.475,
+            center.y + maxDim * 0.4,
             center.z
         );
 
