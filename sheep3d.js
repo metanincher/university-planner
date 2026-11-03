@@ -117,7 +117,7 @@ export function initSheep() {
 
         //cameraDistance *= 1.4;
         //cameraDistance *= 1.1;   // for only sheep
-        cameraDistance *= 2.0;   // for only sheep
+        cameraDistance *= 0.1;   // for only sheep
 
         camera.position.set(
             center.x,
