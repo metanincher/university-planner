@@ -140,7 +140,7 @@ export function initSheep() {
             //const action = mixer.clipAction( gltf.animations[0]);
             //action.play();
             
-            animations.forEach(clip => {
+            gltf.animations.forEach(clip => {
               mixer.clipAction(clip).play();
             })
 
