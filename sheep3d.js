@@ -72,7 +72,7 @@ export function initSheep() {
         3
     );
 
-    light.position.set(3, 5, 5);
+    light.position.set(3, 8, 5);
    
     // 影を有効にする
     light.castShadow = true;
@@ -80,6 +80,15 @@ export function initSheep() {
     // 影の解像度
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
+   
+    // 影の計算範囲
+    light.shadow.camera.left = -20;
+    light.shadow.camera.right = 20;
+    light.shadow.camera.top = 20;
+    light.shadow.camera.bottom = -20;
+    
+    light.shadow.camera.near = 0.1;
+    light.shadow.camera.far = 100;
 
     // 影の滑らかさに関係する設定
     light.shadow.bias = -0.0001;
@@ -106,6 +115,15 @@ export function initSheep() {
                 child.castShadow = true;
                 // 他のオブジェクトからの影を受ける
                 child.receiveShadow = true;
+                
+                 console.log(
+                    "Mesh名:",
+                    child.name,
+                    "影を落とす:",
+                    child.castShadow,
+                    "影を受ける:",
+                    child.receiveShadow
+                );
             }
         });
 
