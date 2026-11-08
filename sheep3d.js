@@ -72,7 +72,7 @@ export function initSheep() {
         3
     );
 
-    light.position.set(3, 8, 5);
+    light.position.set(5, 8, 5);
    
     // 影を有効にする
     light.castShadow = true;
