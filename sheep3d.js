@@ -116,14 +116,14 @@ export function initSheep() {
                 // 他のオブジェクトからの影を受ける
                 child.receiveShadow = true;
                 
-                 console.log(
-                    "Mesh名:",
-                    child.name,
-                    "影を落とす:",
-                    child.castShadow,
-                    "影を受ける:",
-                    child.receiveShadow
-                );
+                //console.log(
+                //    "Mesh名:",
+                //    child.name,
+                //    "影を落とす:",
+                //    child.castShadow,
+                //    "影を受ける:",
+                //    child.receiveShadow
+                //);
             }
         });
 
