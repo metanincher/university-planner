@@ -50,6 +50,10 @@ export function initSheep() {
         antialias: true,
         alpha: true
     });
+    
+    // 影を有効にする
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     renderer.setSize(
         container.clientWidth,
@@ -69,6 +73,17 @@ export function initSheep() {
     );
 
     light.position.set(3, 5, 5);
+   
+    // 影を有効にする
+    light.castShadow = true;
+
+    // 影の解像度
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
+
+    // 影の滑らかさに関係する設定
+    light.shadow.bias = -0.0001;
+
     scene.add(light);
 
     scene.add(
@@ -83,6 +98,16 @@ export function initSheep() {
 
         // ★ sheepをグローバルスコープの変数に格納
         sheep = gltf.scene;
+        
+        // 羊のモデルに影を設定
+        sheep.traverse((child) => {
+            if (child.isMesh) {
+                // 自分の影を他のオブジェクトに落とす
+                child.castShadow = true;
+                // 他のオブジェクトからの影を受ける
+                child.receiveShadow = true;
+            }
+        });
 
         // モデルの大きさを確認
         const box = new THREE.Box3().setFromObject(sheep);
